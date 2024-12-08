@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useContext, useState } from "react";
 
 interface UserContextType {
   users: Array<string>;
@@ -8,7 +8,7 @@ interface UserContextType {
 const UserContext = React.createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<string[]>([]);
 
   return (
     <UserContext.Provider value={{ users, setUsers }}>
@@ -17,4 +17,14 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export { UserContext, UserProvider };
+const useUserContext = () => {
+  const context = useContext(UserContext);
+
+  if (!context) {
+    throw new Error("useUserContext must be used within a UserProvider");
+  }
+
+  return context;
+};
+
+export { useUserContext, UserProvider };

@@ -1,11 +1,15 @@
-import { useContext } from "react"
-import { MainContext } from "./MainProvider"
+import { useMainContext } from "./MainProvider";
+import { useUserContext } from "./UserProvider";
 
 export default function Room() {
-	const context = useContext(MainContext)
-	return (<>
-		<div>
-			I'm a room my id is {context?.roomId}
-		</div>
-	</>)
+  const context = useMainContext();
+  const userContext = useUserContext();
+
+  return (
+    <>
+      <div>I'm a room my id is {context?.roomId}</div>
+      <div>My name is {context?.name}</div>
+      <div>I'm here with {userContext?.users}</div>
+    </>
+  );
 }

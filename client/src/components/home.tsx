@@ -24,9 +24,10 @@ export default function Home() {
     socket?.emit("join", { name, roomId }, (error: string) => {
       if (error) {
         console.error(error);
+      } else {
+        navigate("/room");
       }
     });
-    navigate("/room");
   };
 
   return (

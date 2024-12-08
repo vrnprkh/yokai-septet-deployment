@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useContext, useState } from "react";
 
 interface MainContextType {
   name: string;
@@ -20,4 +20,14 @@ const MainProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export { MainContext, MainProvider };
+const useMainContext = () => {
+  const context = useContext(MainContext);
+
+  if (!context) {
+    throw new Error("useMainContext must be used within a MainProvider");
+  }
+
+  return context;
+};
+
+export { MainProvider, useMainContext };

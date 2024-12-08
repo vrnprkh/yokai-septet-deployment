@@ -1,14 +1,15 @@
 import React, { ReactNode, useContext, useState } from "react";
+import { User } from "./Room";
 
 interface UserContextType {
-  users: Array<string>;
-  setUsers: React.Dispatch<React.SetStateAction<Array<string>>>;
+  users: Array<User>;
+  setUsers: React.Dispatch<React.SetStateAction<Array<User>>>;
 }
 
 const UserContext = React.createContext<UserContextType | undefined>(undefined);
 
 const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [users, setUsers] = useState<string[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   return (
     <UserContext.Provider value={{ users, setUsers }}>

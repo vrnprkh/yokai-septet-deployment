@@ -9,31 +9,44 @@ type Message = {
   user: string;
 };
 
+export type User = {
+  id: string;
+  name: string;
+  roomId: string;
+};
+
 export default function Room() {
   const context = useMainContext();
-  const userContext = useUserContext();
+  const { users, setUsers } = useUserContext();
   const socket = useSocketContext();
 
-  // Initialize message as an object with text and user properties
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    socket.on("previousMessages", (messages: Message[]) => {
-      // Display previous messages when the user joins the room
-      setMessages(messages);
+    // Listen for users in the room
+    socket.on("users", (newUsers: User[]) => {
+      console.log("Updated users:", newUsers);
+      setUsers(newUsers);
     });
 
-    socket.on("message", (updatedMessages: Message[]) => {
-      // Update the state with the full list of messages (including the new one)
+    // Listen for previous messages
+    socket.on("previousMessages", (previousMessages: Message[]) => {
+      console.log("Previous messages received:", previousMessages);
+      setMessages(previousMessages);
+    });
+
+    // Listen for new messages
+    socket.on("message", (updatedMessages) => {
       setMessages(updatedMessages);
     });
 
     return () => {
+      socket.off("users");
       socket.off("previousMessages");
       socket.off("message");
     };
-  }, [socket]);
+  }, [setUsers, socket]);
 
   const handleSendMessage = () => {
     // Ensure the message object is complete with text and user
@@ -41,8 +54,6 @@ export default function Room() {
       // Emit the message to the server
       socket.emit("sendMessage", message.text);
       setMessage({ text: "", user: context?.name || "" });
-
-      console.log("messages", messages);
     }
   };
 
@@ -50,7 +61,7 @@ export default function Room() {
     <>
       <div>I'm in room with ID: {context?.roomId}</div>
       <div>My name is {context?.name}</div>
-      <div>I'm here with {userContext?.users?.join(", ")}</div>
+      <div>I'm here with {users?.map((user) => user.name).join(", ")}</div>
       <div>
         {messages.map((msg, index) => (
           <div key={index}>{msg.text}</div>

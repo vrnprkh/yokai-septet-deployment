@@ -1,10 +1,11 @@
 import { Input, Button } from "@mui/material";
 import "./Home.css";
 import { useEffect } from "react";
-import { useMainContext } from "../MainProvider";
-import { useUserContext } from "../UserProvider";
+import { useMainContext } from "../../providers/MainProvider";
+import { useUserContext } from "../../providers/UserProvider";
+import { useSocketContext } from "../../providers/SocketProvider";
 import { useNavigate } from "react-router";
-import { useSocketContext } from "../SocketProvider";
+import { User } from "../Room";
 
 export default function Home() {
   const socket = useSocketContext();
@@ -14,7 +15,7 @@ export default function Home() {
 
   // Check if there are users present
   useEffect(() => {
-    socket?.on("users", (users: string[]) => {
+    socket?.on("users", (users: User[]) => {
       setUsers(users);
     });
   }, [socket, setUsers]);

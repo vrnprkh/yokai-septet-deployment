@@ -1,12 +1,12 @@
 import { createRoot } from "react-dom/client";
 import "./style.css";
 import { BrowserRouter, Route, Routes } from "react-router";
-import { MainProvider } from "./MainProvider.tsx";
-import { UserProvider } from "./UserProvider.tsx";
-import { SocketProvider } from "./SocketProvider.tsx";
-import Home from "./components/home.tsx";
-import Game from "./components/Game.tsx";
-import Room from "./Room.tsx";
+import { MainProvider } from "./providers/MainProvider.tsx";
+import { UserProvider } from "./providers/UserProvider.tsx";
+import { SocketProvider } from "./providers/SocketProvider.tsx";
+import Room from "./pages/Room.tsx";
+import Game from "./pages/Game/Game.tsx";
+import Home from "./pages/Home/home.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <MainProvider>

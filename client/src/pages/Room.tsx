@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useMainContext } from "./MainProvider";
-import { useSocketContext } from "./SocketProvider";
-import { useUserContext } from "./UserProvider";
+import { useMainContext } from "../providers/MainProvider";
+import { useSocketContext } from "../providers/SocketProvider";
+import { useUserContext } from "../providers/UserProvider";
 
 // Define the Message type
 type Message = {

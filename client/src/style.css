@@ -6,14 +6,11 @@ body {
   padding: 0;
 }
 
+
 /* global style */
 * {
-  font-family: Arial, sans-serif;
+  font-family: Helvetica, sans-serif;
   font-size: 12pt;
 }
 
-div#app {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+

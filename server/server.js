@@ -14,8 +14,16 @@ io.on('connection', (socket) => {
       const { user, error } = addUser({ id: socket.id, name: name, roomId: roomId });     
       if (error) return callback(error)
       socket.join(user.roomId)
-      socket.in(roomId).emit("notification", `${user.name} has joined the room`)
-      io.in(roomId).emit("users", getUsersInRoom(roomId))
+
+      // Fetch and emit previous messages
+      const previousMessages = getMessages(user.roomId);
+      socket.emit("previousMessages", previousMessages);
+
+      // Notify other users and update room users
+      console.log("Users in the room: ", getUsersInRoom(user.roomId))
+      socket.in(roomId).emit("notification", `${user.name} has joined the room`);
+      io.in(roomId).emit("users", getUsersInRoom(user.roomId));
+
       callback()
    })  
    
@@ -28,10 +36,7 @@ io.on('connection', (socket) => {
       
       // Get the updated list of messages for the room
       const updatedMessages = getMessages(user.roomId);
-      
-      // Emit the updated message list to all users in the room
       io.in(user.roomId).emit("message", updatedMessages);
-      console.log(`${user.name} sent message: ${message}`);
    });
    
    

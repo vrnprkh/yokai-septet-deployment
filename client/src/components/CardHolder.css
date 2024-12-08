@@ -1,0 +1,8 @@
+.cardHolderContainer {
+	background-color: darkgray;
+	flex-direction: row;
+	display:flex;
+	gap : 0.5vw;
+	padding : 0.5vw;
+	justify-content: center;	
+}

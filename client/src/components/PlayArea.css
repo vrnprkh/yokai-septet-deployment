@@ -1,0 +1,14 @@
+.playAreaContainer {
+	padding : 0.5vw;
+	display :flex;
+	flex-direction: column;
+	flex : 1;
+	gap : 0.5vw;
+	justify-content: center;
+	div {
+		display:flex;
+		flex-direction: row;
+		justify-content: center;
+		gap: 0.5vw;
+	}
+}

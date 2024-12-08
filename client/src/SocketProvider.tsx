@@ -4,7 +4,7 @@ import { io, Socket } from "socket.io-client";
 const SocketContext = React.createContext<Socket | null>(null);
 
 const SocketProvider = ({ children }: { children: ReactNode }) => {
-  const socket = io("ws://localhost:3000", {
+  const socket = io("ws://localhost:3002", {
     transports: ["websocket", "polling"],
   });
   return (
@@ -12,4 +12,12 @@ const SocketProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export { SocketProvider, SocketContext };
+const useSocketContext = () => {
+  const context = React.useContext(SocketContext);
+  if (!context) {
+    throw new Error("useSocketContext must be used within a SocketProvider");
+  }
+  return context;
+};
+
+export { SocketProvider, useSocketContext };

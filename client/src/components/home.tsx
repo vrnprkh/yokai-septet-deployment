@@ -1,13 +1,13 @@
 import { Input, Button } from "@mui/material";
-import { SocketContext } from "../SocketProvider";
 import "./Home.css";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { useMainContext } from "../MainProvider";
 import { useUserContext } from "../UserProvider";
 import { useNavigate } from "react-router";
+import { useSocketContext } from "../SocketProvider";
 
 export default function Home() {
-  const socket = useContext(SocketContext);
+  const socket = useSocketContext();
   const { name, setName, roomId, setRoomId } = useMainContext();
   const { setUsers } = useUserContext();
   const navigate = useNavigate();

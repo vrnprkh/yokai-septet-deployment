@@ -1,0 +1,19 @@
+/* define common styles for app */
+
+/* simple reset */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* global style */
+* {
+  font-family: Arial, sans-serif;
+  font-size: 12pt;
+}
+
+div#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

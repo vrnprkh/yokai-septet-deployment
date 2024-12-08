@@ -6,7 +6,7 @@ import { UserProvider } from "./providers/UserProvider.tsx";
 import { SocketProvider } from "./providers/SocketProvider.tsx";
 import Room from "./pages/Room.tsx";
 import Game from "./pages/Game/Game.tsx";
-import Home from "./pages/Home/home.tsx";
+import Home from "./pages/Home/Home.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <MainProvider>

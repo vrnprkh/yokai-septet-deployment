@@ -1,7 +1,7 @@
 .middleContainer {
 	display : flex; 
 	flex : 1;
-	border : 1px black solid;
+	/* border : 1px black solid; */
 	flex-direction: row;
 	justify-content: center;
 	align-items: center;

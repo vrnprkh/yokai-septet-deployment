@@ -5,17 +5,16 @@ import "./CardHolder.css";
 export default function CardHolder() {
   const context = UseGameContext();
   const cards = context.currentCards;
-  let i =1
   return (
     <>
       <div className="cardHolderContainer">
-        {cards.map((c) => {
+        {cards.map((c, index) => {
           return (
             <GameCard
               rank={c.rank}
               suit={c.suit}
               isHighlighted={c.isHighlighted}
-              key={i++}
+              key={index}
             />
           );
         })}

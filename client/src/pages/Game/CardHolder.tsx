@@ -1,7 +1,11 @@
-import GameCard, { GameCardProps } from "./Card";
+import { UseGameContext } from "../../providers/GameProvider";
+import GameCard from "./Card";
 import "./CardHolder.css";
 
-export default function CardHolder({ cards }: { cards: GameCardProps[] }) {
+export default function CardHolder() {
+  const context = UseGameContext();
+  const cards = context.currentCards;
+  let i =1
   return (
     <>
       <div className="cardHolderContainer">
@@ -11,6 +15,7 @@ export default function CardHolder({ cards }: { cards: GameCardProps[] }) {
               rank={c.rank}
               suit={c.suit}
               isHighlighted={c.isHighlighted}
+              key={i++}
             />
           );
         })}

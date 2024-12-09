@@ -1,32 +1,24 @@
-import GameCard, { GameCardProps } from "./Card";
+import { UseGameContext } from "../../providers/GameProvider";
+import GameCard from "./Card";
 import "./PlayArea.css";
 
-export default function PlayArea({
-  trumpCard,
-  card1,
-  card2,
-  card3,
-  card4,
-}: {
-  trumpCard?: GameCardProps;
-  card1?: GameCardProps;
-  card2?: GameCardProps;
-  card3?: GameCardProps;
-  card4?: GameCardProps;
-}) {
+export default function PlayArea() {
+  const context = UseGameContext();
+  const playedCards = context.playedCards;
+  const card1 = playedCards[0];
+  const card2 = playedCards[1];
+  const card3 = playedCards[2];
+  const card4 = playedCards[3];
+  const trumpCard = context.trumpCard;
   return (
     <div className="playAreaContainer">
+      <div>{card3 && <GameCard {...card3} isHoverable={false} />}</div>
       <div>
-        <GameCard {...card3}/>
+        {card2 && <GameCard {...card2} isHoverable={false} />}
+        {trumpCard && <GameCard {...trumpCard} isHoverable={false} />}
+        {card4 && <GameCard {...card4} isHoverable={false} />}
       </div>
-      <div>
-        <GameCard {...card2}/>
-        <GameCard {...trumpCard}/>
-        <GameCard {...card4}/>
-      </div>
-      <div>
-        <GameCard {...card1}/>
-      </div>
+      <div>{card1 && <GameCard {...card1} isHoverable={false} />}</div>
     </div>
   );
 }

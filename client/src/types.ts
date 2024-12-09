@@ -17,3 +17,14 @@ export const suitToColorClass = {
   [Suit.Red]: "#b80f0f",
   [Suit.Blue]: "#16cade",
 };
+
+export type Message = {
+  text: string;
+  user: string;
+};
+
+export type User = {
+  id: string;
+  name: string;
+  roomId: string;
+};

@@ -5,7 +5,7 @@ import { useMainContext } from "../../providers/MainProvider";
 import { useUserContext } from "../../providers/UserProvider";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useNavigate } from "react-router";
-import { User } from "../Room";
+import { User } from "../../types";
 
 export default function Home() {
   const socket = useSocketContext();
@@ -45,10 +45,7 @@ export default function Home() {
           onChange={(e) => setRoomId(e.target.value)}
         />
         <Button variant="contained" onClick={joinRoom}>
-          Join Room
-        </Button>
-        <Button variant="contained" onClick={joinRoom}>
-          Create Room
+          Join/Create Room
         </Button>
       </div>
     </>

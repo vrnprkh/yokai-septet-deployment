@@ -37,10 +37,11 @@ io.on('connection', (socket) => {
       // Get the updated list of messages for the room
       const updatedMessages = getMessages(user.roomId);
       io.in(user.roomId).emit("message", updatedMessages);
+
    });
+      
    
-   
-   socket.on("disconnect", () => {
+   socket.on("leaveRoom", () => {
       const user = removeUser(socket.id)
       if (user) {
          io.in(user.roomId).emit("notification", `${user.name} has left the room`)

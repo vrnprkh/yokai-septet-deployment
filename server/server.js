@@ -37,6 +37,7 @@ io.on('connection', (socket) => {
       // Get the updated list of messages for the room
       const updatedMessages = getMessages(user.roomId);
       io.in(user.roomId).emit("message", updatedMessages);
+
    });
       
    

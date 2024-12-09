@@ -1,5 +1,5 @@
 import React, { ReactNode, useContext, useState } from "react";
-import { User } from "../pages/Room/Room";
+import { User } from "../types";
 
 interface UserContextType {
   users: Array<User>;

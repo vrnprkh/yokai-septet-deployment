@@ -1,4 +1,4 @@
-let messages = {};  // Object to store messages by roomId
+let messages = {}; 
 
 const addMessage = (roomId, message) => {
   if (!messages[roomId]) {

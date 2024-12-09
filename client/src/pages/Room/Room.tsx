@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { useMainContext } from "../../providers/MainProvider";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
-import "./Room.css";
+import "./room.css";
 import { useNavigate } from "react-router";
 import { Message, User } from "../../types";
+import { Box, Button, Paper, TextField, Typography } from "@mui/material";
+import Lobby from "./Lobby";
+import Game from "../Game/Game";
 
 export default function Room() {
   const context = useMainContext();
@@ -14,6 +17,11 @@ export default function Room() {
 
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isReady, setIsReady] = useState<boolean>(false);
+
+  const toggleReady = () => {
+    setIsReady(!isReady);
+  };
 
   useEffect(() => {
     // Listen for users in the room
@@ -28,6 +36,10 @@ export default function Room() {
       setMessages(previousMessages);
     });
 
+    if (users.length == 4) {
+      context.setHideLobby(true);
+    }
+
     // Listen for new messages
     socket.on("message", (updatedMessages) => {
       setMessages(updatedMessages);
@@ -39,7 +51,7 @@ export default function Room() {
       socket.off("message");
       socket.emit("leaveRoom");
     };
-  }, [setUsers, socket]);
+  }, [context, setUsers, socket, users.length]);
 
   const handleSendMessage = () => {
     if (message.text && context?.name) {
@@ -50,55 +62,89 @@ export default function Room() {
   };
 
   return (
-    <div className="roomContainer">
+    <Box className="roomContainer">
       {/* Left Panel */}
-      <div className="leftPanel">
-        <h1>Waiting for players... ({users?.length}/4)</h1>
-        <h1>Team Selection</h1>
-        <h1>Team 1</h1>
-        <h2>{users[0] && users[0].name}</h2>
-        <h2>{users[2] && users[2].name}</h2>
-        <h2>Team 2</h2>
-        <h2>{users[1] && users[1].name}</h2>
-        <h2>{users[3] && users[3].name}</h2>
-      </div>
-
+      {!context.hideLobby && (
+        <Lobby users={users} isReady={isReady} toggleReady={toggleReady} />
+      )}
+      {context.hideLobby && <Game />}
       {/* Right Panel */}
-      <div className="rightPanel">
-        <div className="roomInfo">
-          <h2>Room ID: {context?.roomId}</h2>
-          <div>Welcome, {context?.name}!</div>
-          <div className="roomUsers">
+      <Box
+        sx={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+        }}
+      >
+        <Paper sx={{ padding: 2, marginBottom: 2 }}>
+          <Typography variant="h6">Room ID: {context?.roomId}</Typography>
+          <Typography variant="body1">Welcome, {context?.name}!</Typography>
+          <Typography variant="body1">
             Participants: {users?.map((user) => user.name).join(", ")}
-          </div>
-        </div>
+          </Typography>
+        </Paper>
 
-        <div className="messagesContainer">
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: "auto",
+            padding: 2,
+            backgroundColor: "white",
+            borderRadius: 2,
+            boxShadow: 1,
+            marginBottom: 2,
+            height: "100%",
+          }}
+        >
           {messages.map((msg, index) => (
-            <div
+            <Box
               key={index}
-              className={`message ${
-                msg.user === context?.name ? "userMessage" : ""
-              }`}
+              sx={{
+                padding: 2,
+                marginBottom: 1,
+                borderRadius: 1,
+                backgroundColor:
+                  msg.user === context?.name ? "#b2dfdb" : "#e0f7fa",
+                wordWrap: "break-word",
+              }}
             >
-              <strong>{msg.user}:</strong> {msg.text}
-            </div>
+              <Typography variant="body2" fontWeight="bold">
+                {msg.user}:
+              </Typography>
+              <Typography variant="body2">{msg.text}</Typography>
+            </Box>
           ))}
-        </div>
+        </Box>
 
-        <div className="inputContainer">
-          <input
-            type="text"
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, padding: 1 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
             placeholder="Enter Message"
             value={message.text}
             onChange={(e) => setMessage({ ...message, text: e.target.value })}
+            sx={{ flex: 1 }}
           />
-          <button onClick={handleSendMessage}>Send</button>
-        </div>
-        <button className="leaveButton" onClick={() => navigate("/")}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSendMessage}
+            sx={{ padding: "10px 20px" }}
+          >
+            Send
+          </Button>
+        </Box>
+
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => navigate("/")}
+          sx={{ marginTop: 2, padding: "10px 20px" }}
+        >
           Leave Room
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 }

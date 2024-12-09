@@ -49,7 +49,6 @@ export default function Room() {
       socket.off("users");
       socket.off("previousMessages");
       socket.off("message");
-      socket.emit("leaveRoom");
     };
   }, [context, setUsers, socket, users.length]);
 

@@ -161,9 +161,8 @@ class GameState {
   }
 
   // swapping, automatically swap once all players have commited
-
   hasSwapped(userId) {
-    if (users[this.getUserIndex(userId)].toSwap.length > 0) {
+    if (this.users[this.getUserIndex(userId)].toSwap.length > 0) {
       return true;
     }
     return false;
@@ -175,16 +174,47 @@ class GameState {
       return false;
     }
     if (cards.length != 3) {
-      console.log("Not correct number of cards to swap!")
+      console.log("Not correct number of cards to swap!");
       return false;
     }
-    
+    // check if users owns cards
+    if (
+      cards.filter(
+        (c) => this.users[this.getUserIndex(userId)].hand.indexOf(c) != -1
+      ).length < 3
+    ) {
+      return false;
+    }
+    this.users[this.getUserIndex(userId)].hand = this.users[
+      this.getUserIndex(userId)
+    ].hand.filter((c) => cards.indexOf(c) == -1);
+    this.users[this.getUserIndex(userId)].toSwap = cards;
 
-
+    // check for completion
+    // maybe make this non automatic
+    if (
+      (this.users.every(user => user.toSwap.length === 3))
+    ) {
+      console.log(this.users)
+      this.completeSwap();
+    }
+    return true;
   }
   completeSwap() {
-    // pre all users have swapped
+    this.users.forEach((u, index) => {
+      console.log("foo")
+      this.users[(index + 2) % 4].hand.push(...u.toSwap);
+    });
+    this.state = "inGame"
+    // setup inGame
+    this.setupGameRound();
   }
+  // setup in round
+  setupGameRound() {
+    
+  }
+
+
 }
 
 function test() {
@@ -207,6 +237,32 @@ function test() {
   console.log(evaluateTrick([15, 11, 7, 13], 21));
   console.log(evaluateTrick([15, 11, 7, 1], 21));
   console.log(evaluateTrick([2, 3, 44, 8], 21));
+
+  // this will take a while !
+  while (true) {
+    swapGame = new GameState();
+    swapGame.addUser(1, "user1");
+    swapGame.addUser(2, "user2");
+    swapGame.addUser(3, "user3");
+    swapGame.addUser(4, "user4");
+
+    swapGame.setTeam(1, 1);
+    swapGame.setTeam(2, 1);
+    swapGame.setTeam(3, 2);
+    swapGame.setTeam(4, 2);
+
+    swapGame.startGame();
+
+    if (
+      swapGame.declareSwap(1, [1, 2, 3]) &&
+      swapGame.declareSwap(2, [4, 5, 6]) &&
+      swapGame.declareSwap(3, [7, 8, 9]) &&
+      swapGame.declareSwap(4, [10, 11, 12])
+    ) {
+      console.log(JSON.stringify(swapGame, null, " "));
+      return;
+    }
+  }
 }
 
 test();

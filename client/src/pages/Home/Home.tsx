@@ -77,6 +77,9 @@ export default function Home() {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Enter Room Code
           </Typography>
+          <Typography>
+            Enter the room code provided by your friend to join the room
+          </Typography>
           <Input
             placeholder="Room code"
             value={roomId}

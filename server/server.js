@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
       socket.in(roomId).emit("notification", `${user.name} has joined the room`);
       io.in(roomId).emit("users", getUsersInRoom(user.roomId));
 
-      callback()
+      callback({ username: user.name })
    })  
    
    socket.on("sendMessage", (message) => {

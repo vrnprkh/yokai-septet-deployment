@@ -31,6 +31,14 @@ io.on('connection', (socket) => {
    });
 
    socket.on("join", ({roomId}, callback) => {
+      // Check if the room exists
+      const room = getUsersInRoom(roomId); // Assuming getUsersInRoom returns an array of users in the room
+
+      if (room.length === 0) {
+         return callback({ error: "Room does not exist" });
+      }
+
+      // Add user to room
       const { user, error } = addUser({ id: socket.id, roomId: roomId });     
       if (error) return callback(error)
       socket.join(user.roomId)

@@ -13,6 +13,8 @@ export default function Home() {
   const { setUsers } = useUserContext();
   const navigate = useNavigate();
   const [roomCodeModalOpen, setRoomCodeModalOpen] = useState(false);
+  const [joinRoomError, setJoinRoomError] = useState<string>();
+
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -34,13 +36,19 @@ export default function Home() {
 
   // Emit login event and redirect to room
   const joinRoom = () => {
-    socket?.emit("join", { roomId }, (response: { username: string }) => {
-      if (response.username) {
-        setRoomId(roomId);
-        setName(response.username); // Set the username received from the backend
-        navigate(`/room/${roomId}`);
+    socket?.emit(
+      "join",
+      { roomId },
+      (response: { username: string; error?: string }) => {
+        if (response.error) {
+          setJoinRoomError(response.error); // Set the error state if the room doesn't exist
+        } else if (response.username) {
+          setRoomId(roomId);
+          setName(response.username); // Set the username received from the backend
+          navigate(`/room/${roomId}`);
+        }
       }
-    });
+    );
   };
 
   const createRoom = () => {
@@ -74,6 +82,11 @@ export default function Home() {
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
           />
+          {joinRoomError && (
+            <Typography color="error" variant="body2">
+              {joinRoomError}
+            </Typography>
+          )}
           <Button variant="contained" onClick={joinRoom}>
             Join Room
           </Button>

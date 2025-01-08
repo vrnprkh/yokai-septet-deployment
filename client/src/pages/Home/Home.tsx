@@ -36,7 +36,6 @@ export default function Home() {
     socket?.emit(
       "create",
       ({ roomId, username }: { roomId: string; username: string }) => {
-        console.log(`FRONTEND: room ${roomId} created by ${username}`);
         if (roomId && username) {
           setRoomId(roomId);
           setName(username);

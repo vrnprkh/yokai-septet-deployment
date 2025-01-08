@@ -23,6 +23,9 @@ io.on('connection', (socket) => {
 
       console.log(`Room ${roomId} created by user ${user.name}`);
 
+      // Update room users
+      io.in(roomId).emit("users", getUsersInRoom(user.roomId));
+
       // Send the room ID and name back to the client
       callback({ roomId: roomId, username: user.name });
    });

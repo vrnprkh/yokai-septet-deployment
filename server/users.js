@@ -17,7 +17,6 @@ const addUser = ({ id, roomId }) => {
 
    const user = { id, name: generateRandomName(), roomId };
    users.push(user);
-   console.log("USER ADDED: ", user);
    return { user };
 }
 

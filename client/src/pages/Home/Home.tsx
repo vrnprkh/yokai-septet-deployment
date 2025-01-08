@@ -83,7 +83,7 @@ export default function Home() {
             Enter Room Code
           </Typography>
           <Typography className="modalDescription">
-            Enter the room code provided by your friend to join the room
+            Enter the room code provided by your friend to join the room.
           </Typography>
           <Input
             placeholder="Room code"

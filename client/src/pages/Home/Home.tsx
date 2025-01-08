@@ -73,22 +73,26 @@ export default function Home() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={modalStyle}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+        <Box className="modalContainer">
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            className="modalTitle"
+          >
             Enter Room Code
           </Typography>
-          <Typography>
+          <Typography className="modalDescription">
             Enter the room code provided by your friend to join the room
           </Typography>
           <Input
             placeholder="Room code"
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
+            className="modalInput"
           />
           {joinRoomError && (
-            <Typography color="error" variant="body2">
-              {joinRoomError}
-            </Typography>
+            <Typography className="errorText">{joinRoomError}</Typography>
           )}
           <Button variant="contained" onClick={joinRoom}>
             Join Room

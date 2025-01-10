@@ -100,13 +100,13 @@ export default function Room() {
     // Listen for gameState changes
     socket.on("gameState", (updatedGameState) => {
       console.log(updatedGameState);
-    })
+    });
 
     return () => {
       socket.off("users");
       socket.off("previousMessages");
       socket.off("message");
-      socket.off("gameState")
+      socket.off("gameState");
     };
   }, [context, setUsers, socket, users.length]);
 
@@ -121,32 +121,39 @@ export default function Room() {
   const handleLeaveRoom = () => {
     sessionStorage.removeItem("userId");
     socket.emit("leaveRoom");
+    context.setRoomId("");
+    context.setName("");
+    context.setHideLobby(false);
     navigate("/");
   };
 
   const handleStartGame = () => {
     socket.emit(
       "startGame",
-      {roomId},
-      (response: {gameState : any; error? : string}) => {
+      { roomId },
+      (response: { gameState: any; error?: string }) => {
         if (response.error) {
           console.log(response.error);
         } else {
-          console.log(response.gameState)
+          console.log(response.gameState);
         }
       }
-    )
-  }
+    );
+  };
 
   return (
     <Box className="roomContainer">
       {/* Left Panel */}
-      {!context.hideLobby && (
-        <Lobby users={users} isReady={isReady} toggleReady={toggleReady} />
-      )}
-      {context.hideLobby && <Game />}
+      <Box className="leftPanel">
+        {!context.hideLobby && (
+          <Lobby users={users} isReady={isReady} toggleReady={toggleReady} />
+        )}
+        {context.hideLobby && <Game />}
+      </Box>
+
       {/* Right Panel */}
       <Box
+        className="rightPanel"
         sx={{
           flex: 1,
           display: "flex",
@@ -235,10 +242,11 @@ export default function Room() {
           Leave Room
         </Button>
         <Button
-              variant="contained"
-              color="success"
-              onClick={handleStartGame}
-              sx={{ marginTop: 2, padding: "10px 20px" }}>
+          variant="contained"
+          color="success"
+          onClick={handleStartGame}
+          sx={{ marginTop: 2, padding: "10px 20px" }}
+        >
           Start Game
         </Button>
       </Box>

@@ -253,6 +253,7 @@ class GameState {
   resolveTrick() {
     if (!this.checkTrickEnd()) {
       console.log("Trick is not completed, cannot resolve trick");
+      return false
     }
     // evaluate trick
     let cardsPlayed = []
@@ -267,6 +268,7 @@ class GameState {
     this.users[winnerIndex].tricksWon.push(cardsPlayed)
     // set lead player
     this.leadPlayer = this.winnerIndex;
+    return true
   }
 }
 module.exports = { GameState, evaluateTrick };

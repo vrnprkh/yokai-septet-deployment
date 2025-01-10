@@ -117,13 +117,10 @@ io.on('connection', (socket) => {
    function sendGameState(roomId) {
       const users = getUsersInRoom(roomId);
       const roomData = getRoom(roomId);
-      
-
+   
       // todo anomize data
       users.forEach(user => {
-         console.log(user.id);
          io.to(user.id).emit("gameState", roomData)
-
       });
    }
 
@@ -140,6 +137,12 @@ io.on('connection', (socket) => {
       sendGameState(roomId);
       callback({gameState : getRoom(roomId)});
 
+   })
+
+   socket.on("changeTeam", ({userId, team}) => {
+      const user = getUser(userId);
+      user.team = team;
+      io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
    })
  })
  

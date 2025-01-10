@@ -30,12 +30,7 @@ export default function Room() {
 
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isReady, setIsReady] = useState<boolean>(false);
   const roomId = useParams().roomId;
-
-  const toggleReady = () => {
-    setIsReady(!isReady);
-  };
 
   useEffect(() => {
     // Don't do anything if the user is already connected to a room
@@ -93,16 +88,13 @@ export default function Room() {
       setMessages(previousMessages);
     });
 
-    if (users.length == 4) {
-      context.setHideLobby(true);
-    }
-
     // Listen for new messages
     socket.on("message", (updatedMessages) => {
       setMessages(updatedMessages);
     });
 
     // Listen for gameState changes
+
     socket.on("gameState", (gameState : GameState) => {
       console.log(gameState);
       
@@ -137,13 +129,14 @@ export default function Room() {
 
     })
 
+
     return () => {
       socket.off("users");
       socket.off("previousMessages");
       socket.off("message");
-      socket.off("gameState")
+      socket.off("gameState");
     };
-  }, [context, setUsers, socket, users.length]);
+  }, [context, setUsers, socket]);
 
   const handleSendMessage = () => {
     if (message.text && context?.name) {
@@ -156,32 +149,38 @@ export default function Room() {
   const handleLeaveRoom = () => {
     sessionStorage.removeItem("userId");
     socket.emit("leaveRoom");
+    context.setRoomId("");
+    context.setName("");
+    context.setHideLobby(false);
     navigate("/");
   };
 
   const handleStartGame = () => {
     socket.emit(
       "startGame",
-      {roomId},
-      (response: {gameState : any; error? : string}) => {
+      { roomId },
+      (response: { gameState: any; error?: string }) => {
         if (response.error) {
           console.log(response.error);
         } else {
-          console.log(response.gameState)
+          console.log(response.gameState);
+          context.setHideLobby(true);
         }
       }
-    )
-  }
+    );
+  };
 
   return (
     <Box className="roomContainer">
       {/* Left Panel */}
-      {!context.hideLobby && (
-        <Lobby users={users} isReady={isReady} toggleReady={toggleReady} />
-      )}
-      {context.hideLobby && <Game />}
+      <Box className="leftPanel">
+        {!context.hideLobby && <Lobby />}
+        {context.hideLobby && <Game />}
+      </Box>
+
       {/* Right Panel */}
       <Box
+        className="rightPanel"
         sx={{
           flex: 1,
           display: "flex",
@@ -270,10 +269,11 @@ export default function Room() {
           Leave Room
         </Button>
         <Button
-              variant="contained"
-              color="success"
-              onClick={handleStartGame}
-              sx={{ marginTop: 2, padding: "10px 20px" }}>
+          variant="contained"
+          color="success"
+          onClick={handleStartGame}
+          sx={{ marginTop: 2, padding: "10px 20px" }}
+        >
           Start Game
         </Button>
       </Box>

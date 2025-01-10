@@ -5,9 +5,17 @@ import { useUserContext } from "../../providers/UserProvider";
 import "./room.css";
 import { useNavigate, useParams } from "react-router";
 import { Message, User } from "../../types";
-import { Box, Button, Paper, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Paper,
+  TextField,
+  Typography,
+  IconButton,
+} from "@mui/material";
 import Lobby from "./Lobby";
 import Game from "../Game/Game";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 export default function Room() {
   const context = useMainContext();
@@ -121,7 +129,20 @@ export default function Room() {
         }}
       >
         <Paper sx={{ padding: 2, marginBottom: 2 }}>
-          <Typography variant="h6">Room ID: {context?.roomId}</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="h6">Room ID: {context?.roomId}</Typography>
+            <IconButton
+              color="primary"
+              size="small"
+              onClick={() => {
+                if (context?.roomId) {
+                  navigator.clipboard.writeText(context.roomId);
+                }
+              }}
+            >
+              <ContentCopyIcon />
+            </IconButton>
+          </Box>
           <Typography variant="body1">Welcome, {context?.name}!</Typography>
           <Typography variant="body1">
             Participants: {users?.map((user) => user.name).join(", ")}

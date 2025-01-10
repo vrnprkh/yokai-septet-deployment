@@ -3,9 +3,10 @@ import { Card, Typography, Chip } from "@mui/material";
 interface PlayerCardProps {
   name: string;
   isReady: boolean;
+  isUser: boolean;
 }
 
-function PlayerCard({ name, isReady }: PlayerCardProps) {
+function PlayerCard({ name, isReady, isUser }: PlayerCardProps) {
   return (
     <Card
       className="playerCardContainer"
@@ -20,7 +21,7 @@ function PlayerCard({ name, isReady }: PlayerCardProps) {
       <Typography
         variant="h6"
         className="playerCardName"
-        sx={{ fontWeight: "bold", color: "#333" }}
+        sx={{ fontWeight: "bold", color: isUser ? "red" : "#333" }}
       >
         {name}
       </Typography>

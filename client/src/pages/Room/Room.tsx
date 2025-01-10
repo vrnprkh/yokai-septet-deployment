@@ -104,7 +104,7 @@ export default function Room() {
       socket.off("message");
       socket.off("gameState");
     };
-  }, [context, setUsers, socket, users.length]);
+  }, [context, setUsers, socket]);
 
   const handleSendMessage = () => {
     if (message.text && context?.name) {

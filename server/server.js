@@ -141,6 +141,14 @@ io.on('connection', (socket) => {
       callback({gameState : getRoom(roomId)});
 
    })
+
+   socket.on("changeTeam", ({userId, team}) => {
+      console.log("User id: ", userId);
+      const user = getUser(userId);
+      console.log(user);
+      user.team = team;
+      socket.emit("users", getUsersInRoom(user.roomId));
+   })
  })
  
  app.get('/', (req, res) => {

@@ -19,6 +19,7 @@ import Game from "../Game/Game";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { UseGameContext as useGameContext } from "../../providers/GameProvider";
 import { numberToGameCard } from "../../utils/cardHelper";
+import { GameCardProps } from "../Game/Card";
 
 export default function Room() {
   const context = useMainContext();
@@ -113,7 +114,7 @@ export default function Room() {
         }
       })
       // create hand
-      gameContext.setCurrentCards(gameState.users[userIndex].hand.map((x) => numberToGameCard(x)))
+      gameContext.setCurrentCards(gameState.users[userIndex].hand.map((x) => numberToGameCard(x)).filter((e) => e) as GameCardProps[])
 
       // populate middle
       gameContext.setTrumpCard(numberToGameCard(gameState.trumpCard))

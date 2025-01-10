@@ -25,9 +25,9 @@ function suitNumberToSuit(suitNumber : number) : Suit {
 
 }
 
-export function  numberToGameCard(cardNumber : number) : GameCardProps {
+export function  numberToGameCard(cardNumber : number) : GameCardProps | undefined {
 	if (cardNumber == 0) {
-		return {};
+		return undefined;
 	}
 
 	const suitNumber = Math.floor((cardNumber - 1) / 7) + 1;

@@ -6,12 +6,40 @@ const PORT = process.env.PORT || 3002;
 const io = require('socket.io')(httpServer);
 const { addUser, getUser, removeUser, getUsersInRoom } = require('./users')
 const { addMessage, getMessages } = require('./messages')
+const { v4: uuidv4 } = require('uuid');
 
 app.use(cors());
 
 io.on('connection', (socket) => {
-   socket.on("join", ({name, roomId}, callback) => {
-      const { user, error } = addUser({ id: socket.id, name: name, roomId: roomId });     
+   // Handle room creation
+   socket.on("create", (callback) => {
+      console.log("Creating a room");
+      const roomId = uuidv4();
+      socket.join(roomId);
+
+      // Add user to room
+      const { user, error } = addUser({ id: socket.id, roomId: roomId });
+      if (error) return callback(error);
+
+      console.log(`Room ${roomId} created by user ${user.name}`);
+
+      // Update room users
+      io.in(roomId).emit("users", getUsersInRoom(user.roomId));
+
+      // Send the room ID and name back to the client
+      callback({ roomId: roomId, username: user.name });
+   });
+
+   socket.on("join", ({roomId}, callback) => {
+      // Check if the room exists
+      const room = getUsersInRoom(roomId); // Assuming getUsersInRoom returns an array of users in the room
+
+      if (room.length === 0) {
+         return callback({ error: "Room does not exist" });
+      }
+
+      // Add user to room
+      const { user, error } = addUser({ id: socket.id, roomId: roomId });     
       if (error) return callback(error)
       socket.join(user.roomId)
 
@@ -24,7 +52,7 @@ io.on('connection', (socket) => {
       socket.in(roomId).emit("notification", `${user.name} has joined the room`);
       io.in(roomId).emit("users", getUsersInRoom(user.roomId));
 
-      callback()
+      callback({ username: user.name })
    })  
    
    socket.on("sendMessage", (message) => {

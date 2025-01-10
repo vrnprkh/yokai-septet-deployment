@@ -1,11 +1,21 @@
 const users = [];
 
-const addUser = ({ id, name, roomId }) => {
-   if (!name || !roomId) {
-      return { error: 'Username and room are required' };
+const generateRandomName = () => {
+   // TODO: Make sure at the random names are unique
+   const adjectives = ["Swift", "Brave", "Clever", "Mighty", "Witty"];
+   const animals = ["Tiger", "Falcon", "Panda", "Eagle", "Shark"];
+   return (
+     adjectives[Math.floor(Math.random() * adjectives.length)] +
+     animals[Math.floor(Math.random() * animals.length)]
+   );
+ };
+
+const addUser = ({ id, roomId }) => {
+   if (!roomId) {
+      return { error: 'roomId is required' };
    }
 
-   const user = { id, name, roomId };
+   const user = { id, name: generateRandomName(), roomId };
    users.push(user);
    return { user };
 }

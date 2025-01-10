@@ -125,6 +125,16 @@ export default function Room() {
         middleCards[offsetIndex] = gameState.users[offsetIndex].cardPlayed;
       }
       gameContext.setPlayedCards(middleCards.map((x) => numberToGameCard(x)))
+      gameContext.setCurrentTurn((gameState.turn + userIndex) % 4);
+
+      const playerNames : (string | undefined)[]= [undefined, undefined, undefined, undefined]
+
+      gameState.users.forEach((u, i) => {
+        playerNames[i] = gameState.users[(i + userIndex) % 4].name
+      })
+      console.log(playerNames)
+      gameContext.setPlayerNames(playerNames)
+
     })
 
     return () => {

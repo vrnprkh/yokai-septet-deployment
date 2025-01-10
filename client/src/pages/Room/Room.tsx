@@ -88,10 +88,6 @@ export default function Room() {
       setMessages(previousMessages);
     });
 
-    if (users.length == 4) {
-      context.setHideLobby(true);
-    }
-
     // Listen for new messages
     socket.on("message", (updatedMessages) => {
       setMessages(updatedMessages);
@@ -136,6 +132,7 @@ export default function Room() {
           console.log(response.error);
         } else {
           console.log(response.gameState);
+          context.setHideLobby(true);
         }
       }
     );

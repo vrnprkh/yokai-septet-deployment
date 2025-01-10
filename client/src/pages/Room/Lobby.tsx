@@ -31,16 +31,22 @@ const Lobby = ({ users, isReady, toggleReady }: LobbyProps) => {
         <Typography variant="h6" sx={{ marginBottom: 1 }}>
           Team 1
         </Typography>
-        <PlayerCard name={"Test User"} isReady={true} />
-        <PlayerCard name={"Test User"} isReady={false} />
+        {users
+          .filter((user) => user.team === 1)
+          .map((user) => (
+            <PlayerCard name={user.name} isReady={user.isReady} />
+          ))}
       </Box>
 
       <Box sx={{ width: "100%", marginBottom: 2 }}>
         <Typography variant="h6" sx={{ marginBottom: 1 }}>
           Team 2
         </Typography>
-        {users[2] && <PlayerCard name={users[2].name} isReady={false} />}
-        {users[3] && <PlayerCard name={users[3].name} isReady={false} />}
+        {users
+          .filter((user) => user.team === 2)
+          .map((user) => (
+            <PlayerCard name={user.name} isReady={user.isReady} />
+          ))}
       </Box>
 
       <Button

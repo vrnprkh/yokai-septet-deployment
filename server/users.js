@@ -15,7 +15,8 @@ const addUser = ({ id, roomId }) => {
       return { error: 'roomId is required' };
    }
 
-   const user = { id, name: generateRandomName(), roomId };
+   const defaultTeam = getUsersInRoom(roomId).length % 2 + 1;
+   const user = { id, name: generateRandomName(), roomId, team: defaultTeam, isReady: false};
    users.push(user);
    return { user };
 }

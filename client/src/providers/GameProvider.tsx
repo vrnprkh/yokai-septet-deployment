@@ -10,7 +10,7 @@ interface GameContextType {
   setTrumpCard: React.Dispatch<React.SetStateAction<GameCardProps | undefined>>;
   setPlayedCards: React.Dispatch<
     React.SetStateAction<(GameCardProps | undefined)[]>
-  >;
+  >; 
 }
 
 const GameContext = React.createContext<GameContextType | undefined>(undefined);

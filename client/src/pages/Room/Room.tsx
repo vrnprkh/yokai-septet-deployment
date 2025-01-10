@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useMainContext } from "../../providers/MainProvider";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
+
 import "./room.css";
 import { useNavigate, useParams } from "react-router";
-import { Message, User } from "../../types";
+import { GameState, Message, User } from "../../types";
 import {
   Box,
   Button,
@@ -16,10 +17,12 @@ import {
 import Lobby from "./Lobby";
 import Game from "../Game/Game";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { UseGameContext as useGameContext } from "../../providers/GameProvider";
 
 export default function Room() {
   const context = useMainContext();
   const { users, setUsers } = useUserContext();
+  const gameContext = useGameContext();
   const socket = useSocketContext();
   const navigate = useNavigate();
 
@@ -98,8 +101,15 @@ export default function Room() {
     });
 
     // Listen for gameState changes
-    socket.on("gameState", (updatedGameState) => {
+    socket.on("gameState", (updatedGameState : GameState) => {
+
+      // TODO type gamestate
       console.log(updatedGameState);
+
+      
+      
+
+
     })
 
     return () => {

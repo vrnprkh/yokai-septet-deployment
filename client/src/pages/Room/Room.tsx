@@ -33,8 +33,14 @@ export default function Room() {
   };
 
   useEffect(() => {
+    // Don't do anything if the user is already connected to a room
+    if (context?.roomId === roomId) {
+      return;
+    }
+
     // If the user was already in the room, reconnect to the room
     const storedUserId = sessionStorage.getItem("userId");
+
     if (storedUserId) {
       console.log("Stored user Id block called");
       socket.emit(

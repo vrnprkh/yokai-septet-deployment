@@ -16,6 +16,7 @@ const addUser = ({ id, roomId }) => {
    }
 
    const defaultTeam = getUsersInRoom(roomId).length % 2 + 1;
+   console.log("Default team: ", defaultTeam);
    const user = { id, name: generateRandomName(), roomId, team: defaultTeam, isReady: false};
    users.push(user);
    return { user };

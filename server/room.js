@@ -13,7 +13,7 @@ function initializeRoom(roomId) {
 	const users = getUsersInRoom(roomId)
 	for (let i = 0; i < 4; i++) {
 		rooms[roomId].addUser(users[i].id, users[i].name);
-		rooms[roomId].setTeam(users[i].id, i % 2 + 1);
+		rooms[roomId].setTeam(users[i].id, users[i].team);
 	}
 	// start game for first time
 	rooms[roomId].startGame()

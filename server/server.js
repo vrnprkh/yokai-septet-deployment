@@ -143,9 +143,7 @@ io.on('connection', (socket) => {
    })
 
    socket.on("changeTeam", ({userId, team}) => {
-      console.log("User id: ", userId);
       const user = getUser(userId);
-      console.log(user);
       user.team = team;
       socket.emit("users", getUsersInRoom(user.roomId));
    })

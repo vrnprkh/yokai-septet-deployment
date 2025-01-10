@@ -29,3 +29,22 @@ export type User = {
   roomId: string;
   team: number;
 };
+
+
+// GameState Type
+export interface GameState {
+  users: UsersEntity[];
+  trumpCard: number;
+  state: string;
+  leadPlayer: number;
+  turn: number;
+}
+export interface UsersEntity {
+  id: string;
+  name: string;
+  toSwap: number[] ;
+  cardPlayed: number;
+  hand: number[];
+  team: number;
+  tricksWon: number[][] ;
+}

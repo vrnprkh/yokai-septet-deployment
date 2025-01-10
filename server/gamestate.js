@@ -142,6 +142,9 @@ class GameState {
       console.log("Teams not filled!");
       return false;
     }
+    if (this.state != "lobby") {
+      return false;
+    }
     this.assignSeats();
     this.dealCards();
     this.state = "cardSwap";

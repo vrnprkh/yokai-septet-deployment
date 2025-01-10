@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useMainContext } from "../../providers/MainProvider";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
+
 import "./room.css";
 import { useNavigate, useParams } from "react-router";
-import { Message, User } from "../../types";
+import { GameState, Message, User } from "../../types";
 import {
   Box,
   Button,
@@ -16,10 +17,14 @@ import {
 import Lobby from "./Lobby";
 import Game from "../Game/Game";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { UseGameContext as useGameContext } from "../../providers/GameProvider";
+import { numberToGameCard } from "../../utils/cardHelper";
+import { GameCardProps } from "../Game/Card";
 
 export default function Room() {
   const context = useMainContext();
   const { users, setUsers } = useUserContext();
+  const gameContext = useGameContext();
   const socket = useSocketContext();
   const navigate = useNavigate();
 
@@ -89,9 +94,41 @@ export default function Room() {
     });
 
     // Listen for gameState changes
-    socket.on("gameState", (updatedGameState) => {
-      console.log(updatedGameState);
-    });
+
+    socket.on("gameState", (gameState : GameState) => {
+      console.log(gameState);
+      
+      // find user data
+      let userIndex = -1;
+      gameState.users.forEach((u, i) => {
+        if (u.id == sessionStorage.getItem("userId")) {
+          userIndex = i;
+        }
+      })
+      // create hand
+      gameContext.setCurrentCards(gameState.users[userIndex].hand.map((x) => numberToGameCard(x)).filter((e) => e) as GameCardProps[])
+
+      // populate middle
+      gameContext.setTrumpCard(numberToGameCard(gameState.trumpCard))
+      
+      const middleCards = [0, 0, 0, 0];
+      for (let i = 0; i < 4; i++) {
+        const offsetIndex = (i + userIndex) % 4
+        middleCards[offsetIndex] = gameState.users[offsetIndex].cardPlayed;
+      }
+      gameContext.setPlayedCards(middleCards.map((x) => numberToGameCard(x)))
+      gameContext.setCurrentTurn((gameState.turn + userIndex) % 4);
+
+      const playerNames : (string | undefined)[]= [undefined, undefined, undefined, undefined]
+
+      gameState.users.forEach((u, i) => {
+        playerNames[i] = gameState.users[(i + userIndex) % 4].name
+      })
+      console.log(playerNames)
+      gameContext.setPlayerNames(playerNames)
+
+    })
+
 
     return () => {
       socket.off("users");

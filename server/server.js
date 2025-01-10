@@ -12,6 +12,7 @@ const { createRoom, initializeRoom, getRoom } = require('./room');
 app.use(cors());
 
 io.on('connection', (socket) => {
+
    // Handle room creation
    socket.on("create", (callback) => {
       console.log("Creating a room");
@@ -58,19 +59,7 @@ io.on('connection', (socket) => {
 
       callback({ username: user.name, id: user.id });
    })  
-   socket.on("startGame", ({roomId}, callback) => {
-      const room = getUsersInRoom(roomId);
 
-      if (room.length != 4) {
-         return callback({error: "Incorrect Number of people in room!"});
-      }
-
-      initializeRoom(roomId)
-      console.log(getRoom(roomId))
-      callback(getRoom(roomId));
-
-   })
-   
    socket.on("sendMessage", (message) => {
       const user = getUser(socket.id);
       const msg = { user: user.name, text: message };
@@ -123,8 +112,34 @@ io.on('connection', (socket) => {
       callback?.({ username: user.name, id: user.id });
    });
 
-   
-   
+
+   // send an updated game state to each client for a room
+   function sendGameState(roomId) {
+      const users = getUsersInRoom(roomId);
+      const roomData = getRoom(roomId);
+      
+
+      // todo anomize data
+      users.forEach(user => {
+         console.log(user.id);
+         io.to(user.id).emit("gameState", roomData)
+      });
+   }
+
+   socket.on("startGame", ({roomId}, callback) => {
+      const room = getUsersInRoom(roomId);
+
+      if (room.length != 4) {
+         return callback({error: "Incorrect Number of people in room!"});
+      }
+
+      initializeRoom(roomId)
+
+      console.log(getRoom(roomId))
+      sendGameState(roomId);
+      callback({gameState : getRoom(roomId)});
+
+   })
  })
  
  app.get('/', (req, res) => {

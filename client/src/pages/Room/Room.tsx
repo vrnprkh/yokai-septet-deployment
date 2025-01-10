@@ -97,6 +97,11 @@ export default function Room() {
       setMessages(updatedMessages);
     });
 
+    // Listen for gameState changes
+    socket.on("gameState", (updatedGameState) => {
+      console.log(updatedGameState);
+    })
+
     return () => {
       socket.off("users");
       socket.off("previousMessages");

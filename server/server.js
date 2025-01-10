@@ -122,7 +122,8 @@ io.on('connection', (socket) => {
       // todo anomize data
       users.forEach(user => {
          console.log(user.id);
-         io.to(user.id).emit("gameState", roomData)
+         io.to(user.id).emit("gameState", user)
+
       });
    }
 

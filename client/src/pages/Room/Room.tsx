@@ -106,6 +106,7 @@ export default function Room() {
       socket.off("users");
       socket.off("previousMessages");
       socket.off("message");
+      socket.off("gameState")
     };
   }, [context, setUsers, socket, users.length]);
 

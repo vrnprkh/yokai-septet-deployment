@@ -18,12 +18,18 @@ function suitNumberToSuit(suitNumber : number) : Suit {
 			return Suit.Black
 		case 6:
 			return Suit.Red
+		case 7:
+			return Suit.Blue;
 	}
-	return Suit.Blue;
-	
+	return Suit.Green;
+
 }
 
 export function  numberToGameCard(cardNumber : number) : GameCardProps {
+	if (cardNumber == 0) {
+		return {};
+	}
+
 	const suitNumber = Math.floor((cardNumber - 1) / 7) + 1;
 	const suit = suitNumberToSuit(suitNumber);
 	return {rank : cardNumber - ((suitNumber - 1) * 7), suit : suit}

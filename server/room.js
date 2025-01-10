@@ -9,6 +9,9 @@ function createRoom(roomId) {
 
 
 function initializeRoom(roomId) {
+	if (rooms[roomId].state != "lobby") {
+		return
+	}
 	// assign teams from lobby
 	const users = getUsersInRoom(roomId)
 	for (let i = 0; i < 4; i++) {

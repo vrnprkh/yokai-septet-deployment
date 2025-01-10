@@ -18,6 +18,7 @@ import Lobby from "./Lobby";
 import Game from "../Game/Game";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { UseGameContext as useGameContext } from "../../providers/GameProvider";
+import { numberToGameCard } from "../../utils/cardHelper";
 
 export default function Room() {
   const context = useMainContext();
@@ -101,15 +102,28 @@ export default function Room() {
     });
 
     // Listen for gameState changes
-    socket.on("gameState", (updatedGameState : GameState) => {
-
-      // TODO type gamestate
-      console.log(updatedGameState);
-
+    socket.on("gameState", (gameState : GameState) => {
+      console.log(gameState);
       
+      // find user data
+      let userIndex = -1;
+      gameState.users.forEach((u, i) => {
+        if (u.id == sessionStorage.getItem("userId")) {
+          userIndex = i;
+        }
+      })
+      // create hand
+      gameContext.setCurrentCards(gameState.users[userIndex].hand.map((x) => numberToGameCard(x)))
+
+      // populate middle
+      gameContext.setTrumpCard(numberToGameCard(gameState.trumpCard))
       
-
-
+      const middleCards = [0, 0, 0, 0];
+      for (let i = 0; i < 4; i++) {
+        const offsetIndex = (i + userIndex) % 4
+        middleCards[offsetIndex] = gameState.users[offsetIndex].cardPlayed;
+      }
+      gameContext.setPlayedCards(middleCards.map((x) => numberToGameCard(x)))
     })
 
     return () => {

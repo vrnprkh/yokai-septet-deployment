@@ -39,7 +39,7 @@ export interface GameState {
   turn: number;
 }
 export interface UsersEntity {
-  id: number;
+  id: string;
   name: string;
   toSwap: number[] ;
   cardPlayed: number;

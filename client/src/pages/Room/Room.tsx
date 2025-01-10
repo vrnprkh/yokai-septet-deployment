@@ -3,7 +3,7 @@ import { useMainContext } from "../../providers/MainProvider";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
 import "./room.css";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Message, User } from "../../types";
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import Lobby from "./Lobby";
@@ -18,10 +18,48 @@ export default function Room() {
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
   const [isReady, setIsReady] = useState<boolean>(false);
+  const roomId = useParams().roomId;
 
   const toggleReady = () => {
     setIsReady(!isReady);
   };
+
+  useEffect(() => {
+    // If the user was already in the room, reconnect to the room
+    const storedUserId = sessionStorage.getItem("userId");
+    if (storedUserId) {
+      console.log("Stored user Id block called");
+      socket.emit(
+        "reconnect",
+        { roomId, userId: storedUserId },
+        (response: { username: string; id: string; error?: string }) => {
+          if (response.error) {
+            console.error(response.error);
+            sessionStorage.removeItem("userId"); // Remove invalid session
+          } else if (response.username && response.id && roomId) {
+            context.setName(response.username);
+            context.setRoomId(roomId);
+            console.log(`${response.username} reconnected successfully`);
+          }
+        }
+      );
+    } else {
+      // If the user is not in the room, join the room
+      console.log("No stored user, creating a new user and joining room");
+      socket?.emit(
+        "join",
+        { roomId },
+        (response: { username: string; id: string; error?: string }) => {
+          if (response.username && roomId) {
+            // Store the user Id in session storage
+            sessionStorage.setItem("userId", response.id);
+            context.setName(response.username); // Set the username received from the backend
+            context.setRoomId(roomId);
+          }
+        }
+      );
+    }
+  }, [context, roomId, socket]);
 
   useEffect(() => {
     // Listen for users in the room
@@ -58,6 +96,12 @@ export default function Room() {
       socket.emit("sendMessage", message.text);
       setMessage({ text: "", user: context?.name || "" });
     }
+  };
+
+  const handleLeaveRoom = () => {
+    sessionStorage.removeItem("userId");
+    socket.emit("leaveRoom");
+    navigate("/");
   };
 
   return (
@@ -138,7 +182,7 @@ export default function Room() {
         <Button
           variant="contained"
           color="error"
-          onClick={() => navigate("/")}
+          onClick={handleLeaveRoom}
           sx={{ marginTop: 2, padding: "10px 20px" }}
         >
           Leave Room

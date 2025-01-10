@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
       io.in(roomId).emit("users", getUsersInRoom(user.roomId));
 
       // Send the room ID and name back to the client
-      callback({ roomId: roomId, username: user.name });
+      callback({ roomId: roomId, username: user.name, id: user.id });
    });
 
    socket.on("join", ({roomId}, callback) => {
@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
       socket.in(roomId).emit("notification", `${user.name} has joined the room`);
       io.in(roomId).emit("users", getUsersInRoom(user.roomId));
 
-      callback({ username: user.name })
+      callback({ username: user.name, id: user.id });
    })  
    
    socket.on("sendMessage", (message) => {
@@ -76,6 +76,38 @@ io.on('connection', (socket) => {
          io.in(user.roomId).emit("users", getUsersInRoom(user.roomId))
       }
    })
+   socket.on("reconnect", ({ roomId, userId }, callback) => {
+      console.log(`User ${userId} is attempting to reconnect to room ${roomId}`);
+   
+      // Check if the room exists
+      const room = getUsersInRoom(roomId);
+      if (room.length === 0) {
+         return callback?.({ error: "Room does not exist" });
+      }
+   
+      // Check if the user exists in our stored users
+      const user = getUser(userId);
+      if (!user) {
+         return callback?.({ error: "User not found. Please rejoin." });
+      }
+   
+      // Rejoin the room
+      socket.join(roomId);
+      console.log(`User ${user.name} reconnected to room ${roomId}`);
+   
+      // Send previous messages
+      const previousMessages = getMessages(roomId);
+      socket.emit("previousMessages", previousMessages);
+   
+      // Notify others in the room
+      socket.in(roomId).emit("notification", `${user.name} has reconnected`);
+      io.in(roomId).emit("users", getUsersInRoom(roomId));
+   
+      // Send success response
+      callback?.({ username: user.name, id: user.id });
+   });
+   
+   
  })
  
  app.get('/', (req, res) => {

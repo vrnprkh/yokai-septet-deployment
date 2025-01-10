@@ -15,18 +15,6 @@ export default function Home() {
   const [roomCodeModalOpen, setRoomCodeModalOpen] = useState(false);
   const [joinRoomError, setJoinRoomError] = useState<string>();
 
-  const modalStyle = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 4,
-  };
-
   // Check if there are users present
   useEffect(() => {
     socket?.on("users", (users: User[]) => {
@@ -39,11 +27,13 @@ export default function Home() {
     socket?.emit(
       "join",
       { roomId },
-      (response: { username: string; error?: string }) => {
+      (response: { username: string; id: string; error?: string }) => {
         if (response.error) {
           setJoinRoomError(response.error); // Set the error state if the room doesn't exist
         } else if (response.username) {
           setRoomId(roomId);
+          // Store the user Id in session storage
+          sessionStorage.setItem("userId", response.id);
           setName(response.username); // Set the username received from the backend
           navigate(`/room/${roomId}`);
         }
@@ -55,9 +45,18 @@ export default function Home() {
     // Request the backend to create a new room
     socket?.emit(
       "create",
-      ({ roomId, username }: { roomId: string; username: string }) => {
+      ({
+        roomId,
+        username,
+        id,
+      }: {
+        roomId: string;
+        username: string;
+        id: string;
+      }) => {
         if (roomId && username) {
           setRoomId(roomId);
+          sessionStorage.setItem("userId", id);
           setName(username);
           navigate(`/room/${roomId}`);
         }

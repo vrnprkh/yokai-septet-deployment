@@ -145,6 +145,7 @@ class GameState {
     this.assignSeats();
     this.dealCards();
     this.state = "cardSwap";
+    return true
   }
 
   // betwen rounds and before rounds

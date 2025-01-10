@@ -7,15 +7,20 @@ const io = require('socket.io')(httpServer);
 const { addUser, getUser, removeUser, getUsersInRoom } = require('./users')
 const { addMessage, getMessages } = require('./messages')
 const { v4: uuidv4 } = require('uuid');
+const { createRoom, initializeRoom, getRoom } = require('./room');
 
 app.use(cors());
 
 io.on('connection', (socket) => {
+
    // Handle room creation
    socket.on("create", (callback) => {
       console.log("Creating a room");
       const roomId = uuidv4();
       socket.join(roomId);
+      
+      // create gameState
+      createRoom(roomId);
 
       // Add user to room
       const { user, error } = addUser({ id: socket.id, roomId: roomId });
@@ -42,7 +47,7 @@ io.on('connection', (socket) => {
       const { user, error } = addUser({ id: socket.id, roomId: roomId });     
       if (error) return callback(error)
       socket.join(user.roomId)
-
+      
       // Fetch and emit previous messages
       const previousMessages = getMessages(user.roomId);
       socket.emit("previousMessages", previousMessages);
@@ -54,7 +59,7 @@ io.on('connection', (socket) => {
 
       callback({ username: user.name, id: user.id });
    })  
-   
+
    socket.on("sendMessage", (message) => {
       const user = getUser(socket.id);
       const msg = { user: user.name, text: message };
@@ -106,8 +111,36 @@ io.on('connection', (socket) => {
       // Send success response
       callback?.({ username: user.name, id: user.id });
    });
-   
-   
+
+
+   // send an updated game state to each client for a room
+   function sendGameState(roomId) {
+      const users = getUsersInRoom(roomId);
+      const roomData = getRoom(roomId);
+      
+
+      // todo anomize data
+      users.forEach(user => {
+         console.log(user.id);
+         io.to(user.id).emit("gameState", roomData)
+
+      });
+   }
+
+   socket.on("startGame", ({roomId}, callback) => {
+      const room = getUsersInRoom(roomId);
+
+      if (room.length != 4) {
+         return callback({error: "Incorrect Number of people in room!"});
+      }
+
+      initializeRoom(roomId)
+
+      console.log(getRoom(roomId))
+      sendGameState(roomId);
+      callback({gameState : getRoom(roomId)});
+
+   })
  })
  
  app.get('/', (req, res) => {

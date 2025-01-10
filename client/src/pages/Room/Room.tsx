@@ -97,10 +97,16 @@ export default function Room() {
       setMessages(updatedMessages);
     });
 
+    // Listen for gameState changes
+    socket.on("gameState", (updatedGameState) => {
+      console.log(updatedGameState);
+    })
+
     return () => {
       socket.off("users");
       socket.off("previousMessages");
       socket.off("message");
+      socket.off("gameState")
     };
   }, [context, setUsers, socket, users.length]);
 
@@ -117,6 +123,20 @@ export default function Room() {
     socket.emit("leaveRoom");
     navigate("/");
   };
+
+  const handleStartGame = () => {
+    socket.emit(
+      "startGame",
+      {roomId},
+      (response: {gameState : any; error? : string}) => {
+        if (response.error) {
+          console.log(response.error);
+        } else {
+          console.log(response.gameState)
+        }
+      }
+    )
+  }
 
   return (
     <Box className="roomContainer">
@@ -213,6 +233,13 @@ export default function Room() {
           sx={{ marginTop: 2, padding: "10px 20px" }}
         >
           Leave Room
+        </Button>
+        <Button
+              variant="contained"
+              color="success"
+              onClick={handleStartGame}
+              sx={{ marginTop: 2, padding: "10px 20px" }}>
+          Start Game
         </Button>
       </Box>
     </Box>

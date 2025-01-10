@@ -1,17 +1,16 @@
 import { Box, Button, Paper, Typography } from "@mui/material";
 import PlayerCard from "./PlayerCard";
-import { User } from "../../types";
 import { useSocketContext } from "../../providers/SocketProvider";
+import { useUserContext } from "../../providers/UserProvider";
 
 interface LobbyProps {
-  users: User[];
   isReady: boolean;
   toggleReady: () => void;
 }
 
-const Lobby = ({ users, isReady, toggleReady }: LobbyProps) => {
+const Lobby = ({ isReady, toggleReady }: LobbyProps) => {
   const socket = useSocketContext();
-
+  const { users } = useUserContext();
   const storedUserId = sessionStorage.getItem("userId");
 
   const handleChangeTeam = (team: number) => {
@@ -25,7 +24,6 @@ const Lobby = ({ users, isReady, toggleReady }: LobbyProps) => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        width: "30%",
         padding: 2,
       }}
     >

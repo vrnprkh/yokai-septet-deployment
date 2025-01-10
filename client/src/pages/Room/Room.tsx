@@ -143,7 +143,7 @@ export default function Room() {
       {/* Left Panel */}
       <Box className="leftPanel">
         {!context.hideLobby && (
-          <Lobby users={users} isReady={isReady} toggleReady={toggleReady} />
+          <Lobby isReady={isReady} toggleReady={toggleReady} />
         )}
         {context.hideLobby && <Game />}
       </Box>

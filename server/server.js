@@ -7,6 +7,7 @@ const io = require('socket.io')(httpServer);
 const { addUser, getUser, removeUser, getUsersInRoom } = require('./users')
 const { addMessage, getMessages } = require('./messages')
 const { v4: uuidv4 } = require('uuid');
+const { createRoom, initializeRoom, getRoom } = require('./room');
 
 app.use(cors());
 
@@ -16,6 +17,9 @@ io.on('connection', (socket) => {
       console.log("Creating a room");
       const roomId = uuidv4();
       socket.join(roomId);
+      
+      // create gameState
+      createRoom(roomId);
 
       // Add user to room
       const { user, error } = addUser({ id: socket.id, roomId: roomId });
@@ -42,7 +46,7 @@ io.on('connection', (socket) => {
       const { user, error } = addUser({ id: socket.id, roomId: roomId });     
       if (error) return callback(error)
       socket.join(user.roomId)
-
+      
       // Fetch and emit previous messages
       const previousMessages = getMessages(user.roomId);
       socket.emit("previousMessages", previousMessages);
@@ -54,6 +58,18 @@ io.on('connection', (socket) => {
 
       callback({ username: user.name, id: user.id });
    })  
+   socket.on("startGame", ({roomId}, callback) => {
+      const room = getUsersInRoom(roomId);
+
+      if (room.length != 4) {
+         return callback({error: "Incorrect Number of people in room!"});
+      }
+
+      initializeRoom(roomId)
+      console.log(getRoom(roomId))
+      callback(getRoom(roomId));
+
+   })
    
    socket.on("sendMessage", (message) => {
       const user = getUser(socket.id);
@@ -106,6 +122,7 @@ io.on('connection', (socket) => {
       // Send success response
       callback?.({ username: user.name, id: user.id });
    });
+
    
    
  })

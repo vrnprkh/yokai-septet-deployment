@@ -118,6 +118,20 @@ export default function Room() {
     navigate("/");
   };
 
+  const handleStartGame = () => {
+    socket.emit(
+      "startGame",
+      {roomId},
+      (response: {gameState : any; error? : string}) => {
+        if (response.error) {
+          console.log(response.error);
+        } else {
+          console.log(response.gameState)
+        }
+      }
+    )
+  }
+
   return (
     <Box className="roomContainer">
       {/* Left Panel */}
@@ -213,6 +227,13 @@ export default function Room() {
           sx={{ marginTop: 2, padding: "10px 20px" }}
         >
           Leave Room
+        </Button>
+        <Button
+              variant="contained"
+              color="success"
+              onClick={handleStartGame}
+              sx={{ marginTop: 2, padding: "10px 20px" }}>
+          Start Game
         </Button>
       </Box>
     </Box>

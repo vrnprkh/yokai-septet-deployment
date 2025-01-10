@@ -62,6 +62,7 @@ class GameState {
       cardPlayed: 0,
       hand: [],
       team: 0,
+      tricksWon : [],
     });
   }
   removeUser(userId) {
@@ -253,6 +254,19 @@ class GameState {
     if (!this.checkTrickEnd()) {
       console.log("Trick is not completed, cannot resolve trick");
     }
+    // evaluate trick
+    let cardsPlayed = []
+    for (let i = 0; i < 4; i++) {
+      cardsPlayed.push(this.users[(i + this.leadPlayer) % 4].cardPlayed);
+      // clear card
+      this.users[(i + this.leadPlayer) % 4].cardPlayed = 0;
+    }
+    let winningCard = evaluateTrick(cardsPlayed, this.trumpCard);
+    let winnerIndex = (cardsPlayed.indexOf(winningCard) + this.leadPlayer) % 4;
+    // give cards to player
+    this.users[winnerIndex].tricksWon.push(cardsPlayed)
+    // set lead player
+    this.leadPlayer = this.winnerIndex;
   }
 }
 module.exports = { GameState, evaluateTrick };

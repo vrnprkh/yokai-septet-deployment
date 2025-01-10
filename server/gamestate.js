@@ -192,77 +192,67 @@ class GameState {
 
     // check for completion
     // maybe make this non automatic
-    if (
-      (this.users.every(user => user.toSwap.length === 3))
-    ) {
-      console.log(this.users)
+    if (this.users.every((user) => user.toSwap.length === 3)) {
+      console.log(this.users);
       this.completeSwap();
     }
     return true;
   }
   completeSwap() {
     this.users.forEach((u, index) => {
-      console.log("foo")
       this.users[(index + 2) % 4].hand.push(...u.toSwap);
     });
-    this.state = "inGame"
+    this.state = "inGame";
     // setup inGame
     this.setupGameRound();
   }
   // setup in round
   setupGameRound() {
-    
+    // lead player is smae from last round, unless first round, then use A
+    if (this.leadPlayer == -1) {
+      for (let i = 0; i < 4; i++) {
+        if (this.users[i].hand.indexOf(1) != -1) {
+          this.leadPlayer = i;
+          break;
+        }
+      }
+    }
   }
+  // playing cards
+  playCard(userId, card) {
+    // check correct player
+    let uIndex = this.getUserIndex(userId);
+    if (uIndex != (this.turn + this.leadPlayer) % 4) {
+      console.log("Not this users turn!!");
+      return false;
+    }
+    if (this.turn == 4) {
+      console.log("Cannot play card, need to resolve trick");
+      return false;
+    }
 
+    // check if user owns card
+    let user = this.users[uIndex];
 
-}
-
-function test() {
-  testGame = new GameState();
-  testGame.addUser(1, "user1");
-  testGame.addUser(2, "user2");
-  testGame.addUser(3, "user3");
-  testGame.addUser(4, "user4");
-
-  testGame.setTeam(1, 1);
-  testGame.setTeam(2, 1);
-  testGame.setTeam(3, 2);
-  testGame.setTeam(4, 2);
-
-  console.log(testGame);
-  testGame.startGame();
-  console.log(JSON.stringify(testGame, null, " "));
-
-  console.log(evaluateTrick([6, 11, 7, 13], 21));
-  console.log(evaluateTrick([15, 11, 7, 13], 21));
-  console.log(evaluateTrick([15, 11, 7, 1], 21));
-  console.log(evaluateTrick([2, 3, 44, 8], 21));
-
-  // this will take a while !
-  while (true) {
-    swapGame = new GameState();
-    swapGame.addUser(1, "user1");
-    swapGame.addUser(2, "user2");
-    swapGame.addUser(3, "user3");
-    swapGame.addUser(4, "user4");
-
-    swapGame.setTeam(1, 1);
-    swapGame.setTeam(2, 1);
-    swapGame.setTeam(3, 2);
-    swapGame.setTeam(4, 2);
-
-    swapGame.startGame();
-
-    if (
-      swapGame.declareSwap(1, [1, 2, 3]) &&
-      swapGame.declareSwap(2, [4, 5, 6]) &&
-      swapGame.declareSwap(3, [7, 8, 9]) &&
-      swapGame.declareSwap(4, [10, 11, 12])
-    ) {
-      console.log(JSON.stringify(swapGame, null, " "));
-      return;
+    if (user.hand.indexOf(card) == -1) {
+      console.log("User does not own card!");
+      return false;
+    }
+    // update hand and played card
+    user.hand.splice(user.hand.indexOf(card));
+    user.cardPlayed = card;
+    // update turn
+    this.turn += 1;
+    return true;
+  }
+  // check if trick needs to be cleaned up
+  checkTrickEnd() {
+    return this.turn == 4;
+  }
+  resolveTrick() {
+    if (!this.checkTrickEnd()) {
+      console.log("Trick is not completed, cannot resolve trick");
     }
   }
 }
-
-test();
+module.exports = { GameState, evaluateTrick };

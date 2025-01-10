@@ -28,5 +28,4 @@ export type User = {
   name: string;
   roomId: string;
   team: number;
-  isReady: boolean;
 };

@@ -25,12 +25,7 @@ export default function Room() {
 
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isReady, setIsReady] = useState<boolean>(false);
   const roomId = useParams().roomId;
-
-  const toggleReady = () => {
-    setIsReady(!isReady);
-  };
 
   useEffect(() => {
     // Don't do anything if the user is already connected to a room
@@ -142,9 +137,7 @@ export default function Room() {
     <Box className="roomContainer">
       {/* Left Panel */}
       <Box className="leftPanel">
-        {!context.hideLobby && (
-          <Lobby isReady={isReady} toggleReady={toggleReady} />
-        )}
+        {!context.hideLobby && <Lobby />}
         {context.hideLobby && <Game />}
       </Box>
 

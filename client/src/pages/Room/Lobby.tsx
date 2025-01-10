@@ -3,12 +3,7 @@ import PlayerCard from "./PlayerCard";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
 
-interface LobbyProps {
-  isReady: boolean;
-  toggleReady: () => void;
-}
-
-const Lobby = ({ isReady, toggleReady }: LobbyProps) => {
+const Lobby = () => {
   const socket = useSocketContext();
   const { users } = useUserContext();
   const storedUserId = sessionStorage.getItem("userId");
@@ -55,7 +50,6 @@ const Lobby = ({ isReady, toggleReady }: LobbyProps) => {
           .map((user) => (
             <PlayerCard
               name={user.name}
-              isReady={user.isReady}
               isUser={user.id == storedUserId}
               key={user.id}
             />
@@ -81,21 +75,11 @@ const Lobby = ({ isReady, toggleReady }: LobbyProps) => {
           .map((user) => (
             <PlayerCard
               name={user.name}
-              isReady={user.isReady}
               isUser={user.id == storedUserId}
               key={user.id}
             />
           ))}
       </Box>
-
-      <Button
-        variant="contained"
-        color={isReady ? "success" : "error"}
-        sx={{ marginTop: 2 }}
-        onClick={toggleReady}
-      >
-        {isReady ? "Not Ready" : "Ready"}
-      </Button>
     </Box>
   );
 };

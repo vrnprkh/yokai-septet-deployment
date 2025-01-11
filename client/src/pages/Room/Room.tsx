@@ -31,7 +31,7 @@ export default function Room() {
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
   const roomId = useParams().roomId;
-  const storedUserId = sessionStorage.getItem("userId");
+  const storedUserId = localStorage.getItem("userId");
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for the last message
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export default function Room() {
         (response: { username: string; id: string; error?: string }) => {
           if (response.error) {
             console.error(response.error);
-            sessionStorage.removeItem("userId"); // Remove invalid session
+            localStorage.removeItem("userId"); // Remove invalid session
           } else if (response.username && response.id && roomId) {
             context.setName(response.username);
             context.setRoomId(roomId);
@@ -72,7 +72,7 @@ export default function Room() {
         (response: { username: string; id: string; error?: string }) => {
           if (response.username && roomId) {
             // Store the user Id in session storage
-            sessionStorage.setItem("userId", response.id);
+            localStorage.setItem("userId", response.id);
             context.setName(response.username); // Set the username received from the backend
             context.setRoomId(roomId);
           }
@@ -106,7 +106,7 @@ export default function Room() {
       // find user data
       let userIndex = -1;
       gameState.users.forEach((u, i) => {
-        if (u.id == sessionStorage.getItem("userId")) {
+        if (u.id == localStorage.getItem("userId")) {
           userIndex = i;
         }
       });
@@ -160,7 +160,7 @@ export default function Room() {
   };
 
   const handleLeaveRoom = () => {
-    sessionStorage.removeItem("userId");
+    localStorage.removeItem("userId");
     socket.emit("leaveRoom", storedUserId);
     context.setRoomId("");
     context.setName("");

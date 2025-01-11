@@ -253,12 +253,13 @@ class GameState {
       const leadSuit = getSuit(this.users[this.leadPlayer].cardPlayed);
       if (getSuit(card) != leadSuit) {
         // check each card in hand
-        this.users[uIndex].hand.forEach((c) => {
+        for (let i = 0; i <   this.users[uIndex].hand.length; i ++) {
           if (getSuit(c) == leadSuit) {
             console.log("Cannot short suit if owning lead suit!")
             return false;
           }
-        })
+        }
+
       }
     }
     // update hand and played card

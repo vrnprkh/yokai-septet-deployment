@@ -181,6 +181,7 @@ io.on('connection', (socket) => {
       const room = getRoom(user.roomId);
 
       const result = room.playCardIndex(userId, cardIndex);
+      
       sendGameState(user.roomId);
    })
 

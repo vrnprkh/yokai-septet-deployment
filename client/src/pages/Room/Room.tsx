@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMainContext } from "../../providers/MainProvider";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
@@ -31,6 +31,14 @@ export default function Room() {
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
   const roomId = useParams().roomId;
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for the last message
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   useEffect(() => {
     // Don't do anything if the user is already connected to a room
@@ -95,40 +103,49 @@ export default function Room() {
 
     // Listen for gameState changes
 
-    socket.on("gameState", (gameState : GameState) => {
+    socket.on("gameState", (gameState: GameState) => {
       console.log(gameState);
-      
+
       // find user data
       let userIndex = -1;
       gameState.users.forEach((u, i) => {
         if (u.id == sessionStorage.getItem("userId")) {
           userIndex = i;
         }
-      })
+      });
       // create hand
-      gameContext.setCurrentCards(gameState.users[userIndex].hand.map((x) => numberToGameCard(x)).filter((e) => e) as GameCardProps[])
+      gameContext.setCurrentCards(
+        gameState.users[userIndex].hand
+          .map((x) => numberToGameCard(x))
+          .filter((e) => e) as GameCardProps[]
+      );
 
       // populate middle
-      gameContext.setTrumpCard(numberToGameCard(gameState.trumpCard))
-      
+      gameContext.setTrumpCard(numberToGameCard(gameState.trumpCard));
+
       const middleCards = [0, 0, 0, 0];
       for (let i = 0; i < 4; i++) {
-        const offsetIndex = (i + userIndex) % 4
+        const offsetIndex = (i + userIndex) % 4;
         middleCards[offsetIndex] = gameState.users[offsetIndex].cardPlayed;
       }
-      gameContext.setPlayedCards(middleCards.map((x) => numberToGameCard(x)))
-      gameContext.setCurrentTurn((gameState.turn + gameState.leadPlayer + userIndex) % 4);
+      gameContext.setPlayedCards(middleCards.map((x) => numberToGameCard(x)));
+      gameContext.setCurrentTurn(
+        (gameState.turn + gameState.leadPlayer + userIndex) % 4
+      );
 
-      const playerNames : (string | undefined)[]= [undefined, undefined, undefined, undefined]
+      const playerNames: (string | undefined)[] = [
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      ];
 
       gameState.users.forEach((u, i) => {
-        playerNames[i] = gameState.users[(i + userIndex) % 4].name
-      })
-      console.log(playerNames)
-      gameContext.setPlayerNames(playerNames)
-
-    })
-
+        playerNames[i] = gameState.users[(i + userIndex) % 4].name;
+      });
+      console.log(playerNames);
+      gameContext.setPlayerNames(playerNames);
+    });
 
     return () => {
       socket.off("users");
@@ -239,6 +256,7 @@ export default function Room() {
               <Typography variant="body2">{msg.text}</Typography>
             </Box>
           ))}
+          <div ref={messagesEndRef} />
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, padding: 1 }}>
@@ -248,6 +266,11 @@ export default function Room() {
             placeholder="Enter Message"
             value={message.text}
             onChange={(e) => setMessage({ ...message, text: e.target.value })}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSendMessage();
+              }
+            }}
             sx={{ flex: 1 }}
           />
           <Button

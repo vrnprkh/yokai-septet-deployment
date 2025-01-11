@@ -8,6 +8,7 @@ export interface GameCardProps {
   suit?: Suit;
   isHighlighted?: boolean;
   isHoverable?: boolean;
+  clickCallback? : () => void
 }
 
 export default function GameCard({
@@ -15,6 +16,7 @@ export default function GameCard({
   suit = Suit.Green,
   isHighlighted = false,
   isHoverable = true,
+  clickCallback = () => {console.log("hi!")}
 }: GameCardProps) {
   return (
     <>
@@ -29,6 +31,7 @@ export default function GameCard({
         }}
         className={isHighlighted ? "cardContainer highlight" : "cardContainer"}
         style={{ backgroundColor: suitToColorClass[suit] }}
+        onClick={clickCallback}
       >
         {rank}
       </Card>

@@ -203,6 +203,11 @@ class GameState {
     }
     return true;
   }
+  declareSwapIndex(userId, cardIndexes) {
+    const userIndex = this.getUserIndex(userId);
+    return this.declareSwap(userId, cardIndexes.map((x) => this.users[userIndex].hand[x]));
+  }
+
   completeSwap() {
     this.users.forEach((u, index) => {
       this.users[(index + 2) % 4].hand.push(...u.toSwap);
@@ -244,11 +249,14 @@ class GameState {
       return false;
     }
     // update hand and played card
-    user.hand.splice(user.hand.indexOf(card));
+    user.hand.splice(user.hand.indexOf(card), 1);
     user.cardPlayed = card;
     // update turn
     this.turn += 1;
     return true;
+  }
+  playCardIndex(userId, cardIndex) {
+    return this.playCard(userId, this.users[this.getUserIndex(userId)].hand[cardIndex])
   }
   // check if trick needs to be cleaned up
   checkTrickEnd() {

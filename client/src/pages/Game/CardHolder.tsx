@@ -10,13 +10,14 @@ export default function CardHolder() {
   return (
     <>
       <div className="cardHolderContainer">
-        {cards.map((c) => {
+        {cards.map((c, i) => {
           return (
             <GameCard
               rank={c.rank}
               suit={c.suit}
               isHighlighted={c.isHighlighted}
               key={cardKey++}
+              clickCallback={context.cardCallbacks[i]}
             />
           );
         })}

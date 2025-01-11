@@ -162,15 +162,21 @@ io.on('connection', (socket) => {
    })
 
 
-   socket.on("playCard", ({userId, card}) => {
+   socket.on("playCard", ({userId, cardIndex}) => {
       const user = getUser(userId);
+
       const room = getRoom(user.roomId);
 
-      const result = room.playCard(userId, card);
-      if (!result) {
-         return
-      }
-      // if successful send gamestate
+      const result = room.playCardIndex(userId, cardIndex);
+      sendGameState(user.roomId);
+   })
+
+   socket.on("swapCards", ({userId, cardIndexes}) => {
+      const user = getUser(userId);
+      console.log(userId);
+      const room = getRoom(user.roomId);
+      room.declareSwapIndex(userId, cardIndexes);
+
       sendGameState(user.roomId);
    })
 

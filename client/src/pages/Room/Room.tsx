@@ -101,8 +101,35 @@ export default function Room() {
       setMessages(updatedMessages);
     });
 
-    // Listen for gameState changes
+    // playCardCallback
+    function createPlayCardCallback(cardIndex: number) {
+      return () => {
+        socket.emit("playCard", {userId : sessionStorage.getItem("userId"), cardIndex : cardIndex});
+      };
+    }
+    function createSwapCallback(cardIndex: number) {
+      return () => {
+        const currentCards = gameContext.selectedSwapCards;
 
+        // TODO change this so its a bit beter of a check
+        if (currentCards.length == 3) {
+          return;
+        }
+        const foundIndex = currentCards.indexOf(cardIndex);
+        if (foundIndex == -1) {
+          currentCards.push(cardIndex);
+        } else {
+          currentCards.splice(foundIndex, 1);
+        }
+        gameContext.setSelectedSwapCards(currentCards);
+
+        if (currentCards.length == 3) {
+          socket.emit("swapCards", {userId : sessionStorage.getItem("userId"), cardIndexes : currentCards});
+        }
+      };
+    }
+
+    // Listen for gameState changes
     socket.on("gameState", (gameState: GameState) => {
       console.log(gameState);
 
@@ -126,11 +153,13 @@ export default function Room() {
       const middleCards = [0, 0, 0, 0];
       for (let i = 0; i < 4; i++) {
         const offsetIndex = (i + userIndex) % 4;
-        middleCards[offsetIndex] = gameState.users[offsetIndex].cardPlayed;
+        middleCards[i] = gameState.users[offsetIndex].cardPlayed;
       }
       gameContext.setPlayedCards(middleCards.map((x) => numberToGameCard(x)));
       gameContext.setCurrentTurn(
-        (gameState.turn + gameState.leadPlayer + userIndex) % 4
+        gameState.leadPlayer == -1
+          ? -1
+          : (gameState.turn + gameState.leadPlayer - userIndex + 4) % 4
       );
 
       const playerNames: (string | undefined)[] = [
@@ -140,11 +169,19 @@ export default function Room() {
         undefined,
       ];
 
-      gameState.users.forEach((u, i) => {
+      gameState.users.forEach((_, i) => {
         playerNames[i] = gameState.users[(i + userIndex) % 4].name;
       });
       console.log(playerNames);
       gameContext.setPlayerNames(playerNames);
+
+      // card callbacks
+      if (gameState.state == "cardSwap") {
+        gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createSwapCallback(i)));
+      } else if (gameState.state == "inGame") {
+        gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createPlayCardCallback(i)));
+      }
+
     });
 
     return () => {

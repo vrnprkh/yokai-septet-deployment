@@ -9,6 +9,14 @@ interface GameContextType {
   currentTurn: number;
   playerNames: (string | undefined)[];
 
+  // callbacks
+  cardCallbacks : (() => void | undefined)[];
+  // gamePhase
+  gamePhase : string;
+
+  // selected cards during swap stage
+  selectedSwapCards : number[];
+
   setCurrentCards: React.Dispatch<React.SetStateAction<GameCardProps[]>>;
   setTrumpCard: React.Dispatch<React.SetStateAction<GameCardProps | undefined>>;
   setPlayedCards: React.Dispatch<
@@ -16,6 +24,11 @@ interface GameContextType {
   >; 
   setCurrentTurn: React.Dispatch<React.SetStateAction<number>>;
   setPlayerNames : React.Dispatch<React.SetStateAction<(string | undefined)[]>>;
+
+  setCardCallbacks : React.Dispatch<React.SetStateAction<(() => void | undefined)[]>>;
+  setGamePhase: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedSwapCards : React.Dispatch<React.SetStateAction<number[]>>;
+
 }
 
 const GameContext = React.createContext<GameContextType | undefined>(undefined);
@@ -30,6 +43,11 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
   );
   const [currentTurn, setCurrentTurn] = useState<number>(0);
   const [playerNames, setPlayerNames] = useState<(string | undefined)[]>([undefined, undefined, undefined, undefined]);
+
+  const [cardCallbacks, setCardCallbacks] = useState< (() => void | undefined)[]>([])
+  const [gamePhase, setGamePhase] = useState<string>("lobby");
+  const [selectedSwapCards, setSelectedSwapCards] = useState<number[]>([]);
+
   return (
     <GameContext.Provider
       value={{
@@ -38,11 +56,17 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
         playedCards,
         currentTurn,
         playerNames,
+        cardCallbacks,
+        gamePhase,
+        selectedSwapCards,
         setCurrentCards,
         setTrumpCard,
         setPlayedCards,
         setCurrentTurn,
         setPlayerNames,
+        setCardCallbacks,
+        setGamePhase,
+        setSelectedSwapCards,
       }}
     >
       {children}

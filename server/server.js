@@ -69,7 +69,9 @@ io.on('connection', (socket) => {
    })  
 
    socket.on("sendMessage", (message) => {
+      console.log("socket id: ", socket.id)  
       const user = getUser(socket.id);
+      console.log("User found: ", user)
       const msg = { user: user.name, text: message };
       
       // Store the message
@@ -152,6 +154,13 @@ io.on('connection', (socket) => {
       user.team = team;
       io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
    })
+
+   socket.on("changeName", ({userId, name}) => {
+      const user = getUser(userId);
+      user.name = name;
+      io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
+   })
+
  })
  
  app.get('/', (req, res) => {

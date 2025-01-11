@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
       createRoom(roomId);
 
       // Add user to room
-      const { user, error } = addUser({ id: socket.id, roomId: roomId });
+      const { user, error } = addUser({ socketId: socket.id, roomId: roomId });
       if (error) return callback(error);
 
       console.log(`Room ${roomId} created by user ${user.name}`);
@@ -44,6 +44,8 @@ io.on('connection', (socket) => {
    });
 
    socket.on("join", ({roomId}, callback) => {
+      console.log(`Received join request for room: ${roomId}`);
+
       // Check if the room exists
       const room = getUsersInRoom(roomId); // Assuming getUsersInRoom returns an array of users in the room
 
@@ -52,26 +54,26 @@ io.on('connection', (socket) => {
       }
 
       // Add user to room
-      const { user, error } = addUser({ id: socket.id, roomId: roomId });     
+      const { user, error } = addUser({ socketId: socket.id, roomId: roomId });     
       if (error) return callback(error)
       socket.join(user.roomId)
       
       // Fetch and emit previous messages
-      const previousMessages = getMessages(user.roomId);
+      const previousMessages = getMessages(roomId);
       socket.emit("previousMessages", previousMessages);
 
       // Notify other users and update room users
-      console.log("Users in the room: ", getUsersInRoom(user.roomId))
       socket.in(roomId).emit("notification", `${user.name} has joined the room`);
       io.in(roomId).emit("users", getUsersInRoom(user.roomId));
 
       callback({ username: user.name, id: user.id });
    })  
 
-   socket.on("sendMessage", (message) => {
-      console.log("socket id: ", socket.id)  
-      const user = getUser(socket.id);
-      console.log("User found: ", user)
+   socket.on("sendMessage", (message, userId) => {
+      console.log("socket id: ", socket.id)
+
+      const user = getUser(userId);
+      console.log("Found user", user);
       const msg = { user: user.name, text: message };
       
       // Store the message
@@ -82,15 +84,23 @@ io.on('connection', (socket) => {
       io.in(user.roomId).emit("message", updatedMessages);
 
    });
-      
    
-   socket.on("leaveRoom", () => {
-      const user = removeUser(socket.id)
+   socket.on("getPreviousMessages", (userId) => {
+      console.log("user id", userId);
+      const user = getUser(userId);
+      console.log("user", user);
+      const previousMessages = getMessages(roomId);
+      io.in(user.socketId).emit("previousMessages", previousMessages);
+   });
+   
+   socket.on("leaveRoom", (userId) => {
+      const user = removeUser(userId);
       if (user) {
          io.in(user.roomId).emit("notification", `${user.name} has left the room`)
          io.in(user.roomId).emit("users", getUsersInRoom(user.roomId))
       }
    })
+
    socket.on("reconnect", ({ roomId, userId }, callback) => {
       console.log(`User ${userId} is attempting to reconnect to room ${roomId}`);
    
@@ -109,7 +119,10 @@ io.on('connection', (socket) => {
       // Rejoin the room
       socket.join(roomId);
       console.log(`User ${user.name} reconnected to room ${roomId}`);
-   
+      
+      // Update the user's socket ID
+      user.socketId = socket.id;
+
       // Send previous messages
       const previousMessages = getMessages(roomId);
       socket.emit("previousMessages", previousMessages);
@@ -130,7 +143,7 @@ io.on('connection', (socket) => {
    
       // todo anomize data
       users.forEach(user => {
-         io.to(user.id).emit("gameState", roomData)
+         io.to(user.socketId).emit("gameState", roomData)
       });
    }
 

@@ -34,7 +34,7 @@ export default function Home() {
           console.log("Joining room via code");
           setRoomId(roomId);
           // Store the user Id in session storage
-          localStorage.setItem("userId", response.id);
+          sessionStorage.setItem("userId", response.id);
           setName(response.username); // Set the username received from the backend
           navigate(`/room/${roomId}`);
         }
@@ -57,7 +57,7 @@ export default function Home() {
       }) => {
         if (roomId && username) {
           setRoomId(roomId);
-          localStorage.setItem("userId", id);
+          sessionStorage.setItem("userId", id);
           setName(username);
           navigate(`/room/${roomId}`);
         }

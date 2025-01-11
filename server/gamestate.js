@@ -248,6 +248,19 @@ class GameState {
       console.log("User does not own card!");
       return false;
     }
+    // check if its valid in the trick
+    if (this.turn != 0) {
+      const leadSuit = getSuit(this.users[this.leadPlayer].cardPlayed);
+      if (getSuit(card) != leadSuit) {
+        // check each card in hand
+        this.users[uIndex].hand.forEach((c) => {
+          if (getSuit(c) == leadSuit) {
+            console.log("Cannot short suit if owning lead suit!")
+            return false;
+          }
+        })
+      }
+    }
     // update hand and played card
     user.hand.splice(user.hand.indexOf(card), 1);
     user.cardPlayed = card;

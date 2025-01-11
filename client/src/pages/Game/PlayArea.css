@@ -1,15 +1,29 @@
 .playAreaContainer {
-	width : 100%;
-	padding : 0.5vw;
-	display :flex;
-	flex-direction: column;
-	flex : 1;
-	gap : 0.5vw;
+  /* width: 100%; */
+  padding: 0.5vw;
+
+  display: grid;
+  grid-template-areas:
+    ". card2 ."
+    "card1 trump card3"
+    ". card0 .";
+		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr 1fr;
+  gap: 0.5vw;
+  justify-content: center;
+  align-items: center;
+}
+
+.playAreaContainer > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.verticalFiller {
+	display : flex;
 	justify-content: center;
-	div {
-		display:flex;
-		flex-direction: row;
-		justify-content: center;
-		gap: 0.5vw;
-	}
+  align-items: center;
+	flex : 1;
+
 }

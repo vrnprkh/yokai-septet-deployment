@@ -2,9 +2,13 @@
 
 /* simple reset */
 body {
+  display: flex;
   margin: 0;
   padding: 0;
-}
+  height: 100vh;
+  width: 100vw;
+  flex-direction: column;
+;}
 
 
 /* global style */

@@ -31,7 +31,7 @@ export default function Room() {
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
   const roomId = useParams().roomId;
-
+  const storedUserId = sessionStorage.getItem("userId");
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for the last message
 
   useEffect(() => {
@@ -41,16 +41,14 @@ export default function Room() {
   }, [messages]);
 
   useEffect(() => {
-    // Don't do anything if the user is already connected to a room
+    // The user joins the room via code
     if (context?.roomId === roomId) {
+      socket?.emit("getPreviousMessages", storedUserId);
       return;
     }
 
-    // If the user was already in the room, reconnect to the room
-    const storedUserId = sessionStorage.getItem("userId");
-
+    // If the user already in the room and refreshes the page, reconnect to the room
     if (storedUserId) {
-      console.log("Stored user Id block called");
       socket.emit(
         "reconnect",
         { roomId, userId: storedUserId },
@@ -66,7 +64,7 @@ export default function Room() {
         }
       );
     } else {
-      // If the user is not in the room, join the room
+      // The user joins the room via link
       console.log("No stored user, creating a new user and joining room");
       socket?.emit(
         "join",
@@ -81,7 +79,7 @@ export default function Room() {
         }
       );
     }
-  }, [context, roomId, socket]);
+  }, [context, roomId, socket, storedUserId]);
 
   useEffect(() => {
     // Listen for users in the room
@@ -102,7 +100,6 @@ export default function Room() {
     });
 
     // Listen for gameState changes
-
     socket.on("gameState", (gameState: GameState) => {
       console.log(gameState);
 
@@ -153,19 +150,18 @@ export default function Room() {
       socket.off("message");
       socket.off("gameState");
     };
-  }, [context, setUsers, socket]);
+  }, [context, gameContext, setUsers, socket]);
 
   const handleSendMessage = () => {
     if (message.text && context?.name) {
-      // Emit the message to the server
-      socket.emit("sendMessage", message.text);
+      socket.emit("sendMessage", message.text, storedUserId);
       setMessage({ text: "", user: context?.name || "" });
     }
   };
 
   const handleLeaveRoom = () => {
     sessionStorage.removeItem("userId");
-    socket.emit("leaveRoom");
+    socket.emit("leaveRoom", storedUserId);
     context.setRoomId("");
     context.setName("");
     context.setHideLobby(false);

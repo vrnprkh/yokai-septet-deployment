@@ -44,6 +44,8 @@ io.on('connection', (socket) => {
    });
 
    socket.on("join", ({roomId}, callback) => {
+      console.log(`Received join request for room: ${roomId}`);
+
       // Check if the room exists
       const room = getUsersInRoom(roomId); // Assuming getUsersInRoom returns an array of users in the room
 
@@ -57,11 +59,10 @@ io.on('connection', (socket) => {
       socket.join(user.roomId)
       
       // Fetch and emit previous messages
-      const previousMessages = getMessages(user.roomId);
+      const previousMessages = getMessages(roomId);
       socket.emit("previousMessages", previousMessages);
 
       // Notify other users and update room users
-      console.log("Users in the room: ", getUsersInRoom(user.roomId))
       socket.in(roomId).emit("notification", `${user.name} has joined the room`);
       io.in(roomId).emit("users", getUsersInRoom(user.roomId));
 
@@ -83,7 +84,14 @@ io.on('connection', (socket) => {
       io.in(user.roomId).emit("message", updatedMessages);
 
    });
-      
+   
+   socket.on("getPreviousMessages", (userId) => {
+      console.log("user id", userId);
+      const user = getUser(userId);
+      console.log("user", user);
+      const previousMessages = getMessages(roomId);
+      io.in(user.socketId).emit("previousMessages", previousMessages);
+   });
    
    socket.on("leaveRoom", (userId) => {
       const user = removeUser(userId);

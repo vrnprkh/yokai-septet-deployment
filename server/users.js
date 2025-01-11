@@ -36,7 +36,6 @@ const removeUser = (id) => {
 }
 
 const getUsersInRoom = (roomId) => {
-   console.log("ALL USERS: ", users);
    return users.filter((user) => user.roomId === roomId);
  };
 

@@ -181,8 +181,18 @@ io.on('connection', (socket) => {
       const room = getRoom(user.roomId);
 
       const result = room.playCardIndex(userId, cardIndex);
-      
+
       sendGameState(user.roomId);
+      if (!result) {
+         return;
+      }
+      // check gameState
+      if (room.checkTrickEnd()) {
+         setTimeout(() => {
+            room.resolveTrick();
+            sendGameState(user.roomId);
+         }, 1000)
+      }
    })
 
    socket.on("swapCards", ({userId, cardIndexes}) => {

@@ -32,5 +32,6 @@ export function  numberToGameCard(cardNumber : number) : GameCardProps | undefin
 
 	const suitNumber = Math.floor((cardNumber - 1) / 7) + 1;
 	const suit = suitNumberToSuit(suitNumber);
-	return {rank : cardNumber - ((suitNumber - 1) * 7), suit : suit}
+	// times 6 to add the suit offset
+	return {rank : cardNumber - ((suitNumber - 1) * 6), suit : suit}
 }

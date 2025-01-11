@@ -254,7 +254,7 @@ class GameState {
       if (getSuit(card) != leadSuit) {
         // check each card in hand
         for (let i = 0; i <   this.users[uIndex].hand.length; i ++) {
-          if (getSuit(c) == leadSuit) {
+          if (getSuit(this.users[uIndex].hand[i]) == leadSuit) {
             console.log("Cannot short suit if owning lead suit!")
             return false;
           }
@@ -288,12 +288,16 @@ class GameState {
       // clear card
       this.users[(i + this.leadPlayer) % 4].cardPlayed = 0;
     }
-    let winningCard = evaluateTrick(cardsPlayed, this.trumpCard);
-    let winnerIndex = (cardsPlayed.indexOf(winningCard) + this.leadPlayer) % 4;
+    console.log(cardsPlayed);
+
+    let winnerIndex = evaluateTrick(cardsPlayed, this.trumpCard);
+
     // give cards to player
     this.users[winnerIndex].tricksWon.push(cardsPlayed)
     // set lead player
-    this.leadPlayer = this.winnerIndex;
+    this.leadPlayer = (winnerIndex + this.leadPlayer) % 4;
+    this.turn = 0;
+    console.log("round ended")
     return true
   }
 }

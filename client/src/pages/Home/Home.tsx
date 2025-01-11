@@ -99,6 +99,7 @@ export default function Home() {
         </Box>
       </Modal>
       <div className="homeContainer">
+        <Typography className="title">Yokai Septet Online </Typography>
         <Button variant="contained" onClick={() => setRoomCodeModalOpen(true)}>
           Join Room
         </Button>

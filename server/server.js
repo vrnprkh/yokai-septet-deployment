@@ -11,12 +11,20 @@ const { createRoom, initializeRoom, getRoom } = require('./room');
 
 app.use(cors());
 
+const activeRooms = new Set();  // Set to store active rooms
+
 io.on('connection', (socket) => {
 
    // Handle room creation
    socket.on("create", (callback) => {
       console.log("Creating a room");
-      const roomId = uuidv4();
+      
+      // Generate a unique room ID
+      do {
+         roomId = uuidv4().replace(/-/g, "").slice(0, 10); 
+      } while (activeRooms.has(roomId)); 
+
+      activeRooms.add(roomId);
       socket.join(roomId);
       
       // create gameState
@@ -61,7 +69,9 @@ io.on('connection', (socket) => {
    })  
 
    socket.on("sendMessage", (message) => {
+      console.log("socket id: ", socket.id)  
       const user = getUser(socket.id);
+      console.log("User found: ", user)
       const msg = { user: user.name, text: message };
       
       // Store the message
@@ -144,6 +154,13 @@ io.on('connection', (socket) => {
       user.team = team;
       io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
    })
+
+   socket.on("changeName", ({userId, name}) => {
+      const user = getUser(userId);
+      user.name = name;
+      io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
+   })
+
 
    socket.on("playCard", ({userId, card}) => {
       const user = getUser(userId);

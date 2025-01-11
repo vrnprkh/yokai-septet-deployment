@@ -1,15 +1,26 @@
-import { Box, Button, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import PlayerCard from "./PlayerCard";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
+import { useMainContext } from "../../providers/MainProvider";
+import { useState } from "react";
 
 const Lobby = () => {
   const socket = useSocketContext();
   const { users } = useUserContext();
+  const { name, setName } = useMainContext();
   const storedUserId = sessionStorage.getItem("userId");
+  const [newName, setNewName] = useState(name || "");
 
   const handleChangeTeam = (team: number) => {
     socket.emit("changeTeam", { userId: storedUserId, team: team });
+  };
+
+  const handleChangeName = () => {
+    if (newName.trim() && storedUserId) {
+      socket.emit("changeName", { userId: storedUserId, name: newName });
+      setName(newName);
+    }
   };
 
   return (
@@ -79,6 +90,30 @@ const Lobby = () => {
               key={user.id}
             />
           ))}
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          marginBottom: 2,
+          gap: 8,
+        }}
+      >
+        <TextField
+          label="Enter your name"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleChangeName();
+            }
+          }}
+          sx={{ marginBottom: 1 }}
+        />
+        <Button variant="contained" onClick={() => handleChangeName()}>
+          Change Name
+        </Button>
       </Box>
     </Box>
   );

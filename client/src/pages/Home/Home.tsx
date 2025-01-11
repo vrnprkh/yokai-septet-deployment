@@ -31,9 +31,10 @@ export default function Home() {
         if (response.error) {
           setJoinRoomError(response.error); // Set the error state if the room doesn't exist
         } else if (response.username) {
+          console.log("Joining room via code");
           setRoomId(roomId);
           // Store the user Id in session storage
-          sessionStorage.setItem("userId", response.id);
+          localStorage.setItem("userId", response.id);
           setName(response.username); // Set the username received from the backend
           navigate(`/room/${roomId}`);
         }
@@ -56,7 +57,7 @@ export default function Home() {
       }) => {
         if (roomId && username) {
           setRoomId(roomId);
-          sessionStorage.setItem("userId", id);
+          localStorage.setItem("userId", id);
           setName(username);
           navigate(`/room/${roomId}`);
         }

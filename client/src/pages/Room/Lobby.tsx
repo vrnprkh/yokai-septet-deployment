@@ -9,7 +9,7 @@ const Lobby = () => {
   const socket = useSocketContext();
   const { users } = useUserContext();
   const { name, setName } = useMainContext();
-  const storedUserId = sessionStorage.getItem("userId");
+  const storedUserId = localStorage.getItem("userId");
   const [newName, setNewName] = useState(name || "");
 
   const handleChangeTeam = (team: number) => {

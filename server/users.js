@@ -1,4 +1,6 @@
+// User type: { id: string, socketId: string, name: string, roomId: string, team: number }
 const users = [];
+const { v4: uuidv4 } = require('uuid');
 
 const generateRandomName = () => {
    // TODO: Make sure at the random names are unique
@@ -10,14 +12,13 @@ const generateRandomName = () => {
    );
  };
 
-const addUser = ({ id, roomId }) => {
+const addUser = ({ socketId, roomId }) => {
    if (!roomId) {
       return { error: 'roomId is required' };
    }
-
+   const id = uuidv4(); 
    const defaultTeam = getUsersInRoom(roomId).length % 2 + 1;
-   console.log("Default team: ", defaultTeam);
-   const user = { id, name: generateRandomName(), roomId, team: defaultTeam};
+   const user = { socketId: socketId, id: id, name: generateRandomName(), roomId: roomId, team: defaultTeam};
    users.push(user);
    return { user };
 }

@@ -121,7 +121,7 @@ export default function Room() {
 
       const playerNames : (string | undefined)[]= [undefined, undefined, undefined, undefined]
 
-      gameState.users.forEach((u, i) => {
+      gameState.users.forEach((_, i) => {
         playerNames[i] = gameState.users[(i + userIndex) % 4].name
       })
       console.log(playerNames)

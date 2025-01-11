@@ -144,6 +144,19 @@ io.on('connection', (socket) => {
       user.team = team;
       io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
    })
+
+   socket.on("playCard", ({userId, card}) => {
+      const user = getUser(userId);
+      const room = getRoom(user.roomId);
+
+      const result = room.playCard(userId, card);
+      if (!result) {
+         return
+      }
+      // if successful send gamestate
+      sendGameState(user.roomId);
+   })
+
  })
  
  app.get('/', (req, res) => {

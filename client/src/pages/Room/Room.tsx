@@ -183,6 +183,8 @@ export default function Room() {
         gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createSwapCallback(i)));
       } else if (gameState.state == "inGame") {
         gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createPlayCardCallback(i)));
+        // clear selected cards
+        gameContext.setSelectedSwapCards([]);
       }
 
     });

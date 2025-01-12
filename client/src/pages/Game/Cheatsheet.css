@@ -14,7 +14,7 @@
 	gap : 0px;
 	width : fit-content;
 	> div {
-		font-size: 1.25vw;
+		font-size: 1vw;
 	}
 	> div.cell {
 		display: flex;
@@ -22,17 +22,23 @@
 		justify-content: center; /* Horizontal alignment for text and dots */
 		aspect-ratio: 1;
 
-		width: 1.7vw;
+		width: 1.5vw;
 		text-align: center;
 		position: relative; /* Allows positioning of the dot independently */
 	}
 }
 .dot {
-  background-color: #bbb;
   border-radius: 50%;
 	border: 1px solid black;
   display: block; /* Ensures proper sizing */
   width: 75%; /* Adjust size relative to the cell */
   height: 75%; /* Maintain circular shape */
   position: absolute; /* Position independently within the cell */
+	align-content: center;
+	font-size: 60%;
+}
+
+
+.teamInfo {
+	font-size: 1vw;
 }

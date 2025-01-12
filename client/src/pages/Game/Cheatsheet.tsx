@@ -29,7 +29,10 @@ export default function Cheatsheet() {
   }
 
   function beenPlayed(cardSuit: Suit, cardRank: number) {
-    if (cardSuit == context.trumpCard?.suit && cardRank == context.trumpCard.rank) {
+    if (
+      cardSuit == context.trumpCard?.suit &&
+      cardRank == context.trumpCard.rank
+    ) {
       return true;
     }
     for (let i = 0; i < 4; i++) {
@@ -49,6 +52,7 @@ export default function Cheatsheet() {
       }
     }
   }
+  function teamRow(teamNumber: number) {}
 
   function createCheatSheetRow(rowNumber: number, labelName: string) {
     return (
@@ -58,17 +62,21 @@ export default function Cheatsheet() {
           return (
             <>
               <div className="cell">
-                {rowNumber < v &&
-                  v < rowNumber + 8 &&
-                  !beenPlayed(suitNumberToSuit(rowNumber + 1), v) && (
-                    <span
-                      className="dot"
-                      style={{
-                        backgroundColor:
-                          suitToColorClass[suitNumberToSuit(rowNumber + 1)],
-                      }}
-                    ></span>
-                  )}
+                {rowNumber < v && v < rowNumber + 8 && (
+                  <span
+                    className="dot"
+                    style={{
+                      backgroundColor: !beenPlayed(
+                        suitNumberToSuit(rowNumber + 1),
+                        v
+                      )
+                        ? suitToColorClass[suitNumberToSuit(rowNumber + 1)]
+                        : "",
+                    }}
+                  >
+                    {v == 7 && [0,0,1,1,1,2,2,2][rowNumber]}
+                  </span>
+                )}
               </div>
             </>
           );
@@ -83,6 +91,8 @@ export default function Cheatsheet() {
       {colorNames.map((c, i) => {
         return createCheatSheetRow(i, c);
       })}
+
+      <div className="teamInfo"></div>
     </div>
   );
 }

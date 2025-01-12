@@ -4,12 +4,13 @@ import { useSocketContext } from "../../providers/SocketProvider";
 import { useUserContext } from "../../providers/UserProvider";
 import { useMainContext } from "../../providers/MainProvider";
 import { useState } from "react";
+import { getLocalUserID } from "../../utils/storageHelper";
 
 const Lobby = () => {
   const socket = useSocketContext();
   const { users } = useUserContext();
   const { name, setName } = useMainContext();
-  const storedUserId = localStorage.getItem("userId");
+  const storedUserId = getLocalUserID();
   const [newName, setNewName] = useState(name || "");
 
   const handleChangeTeam = (team: number) => {

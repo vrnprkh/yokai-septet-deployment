@@ -174,6 +174,36 @@ io.on('connection', (socket) => {
       io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
    })
 
+
+   socket.on("playCard", ({userId, cardIndex}) => {
+      const user = getUser(userId);
+
+      const room = getRoom(user.roomId);
+
+      const result = room.playCardIndex(userId, cardIndex);
+
+      sendGameState(user.roomId);
+      if (!result) {
+         return;
+      }
+      // check gameState
+      if (room.checkTrickEnd()) {
+         setTimeout(() => {
+            room.resolveTrick();
+            sendGameState(user.roomId);
+         }, 1000)
+      }
+   })
+
+   socket.on("swapCards", ({userId, cardIndexes}) => {
+      const user = getUser(userId);
+      console.log(userId);
+      const room = getRoom(user.roomId);
+      room.declareSwapIndex(userId, cardIndexes);
+
+      sendGameState(user.roomId);
+   })
+
  })
  
  app.get('/', (req, res) => {

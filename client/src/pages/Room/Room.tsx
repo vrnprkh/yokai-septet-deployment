@@ -20,6 +20,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { UseGameContext as useGameContext } from "../../providers/GameProvider";
 import { numberToGameCard } from "../../utils/cardHelper";
 import { GameCardProps } from "../Game/Card";
+import { getLocalUserID, removeLocalUserID, setLocalUserID } from "../../utils/storageHelper";
 
 export default function Room() {
   const context = useMainContext();
@@ -31,7 +32,7 @@ export default function Room() {
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
   const roomId = useParams().roomId;
-  const storedUserId = localStorage.getItem("userId");
+  const storedUserId = getLocalUserID();
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for the last message
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function Room() {
         (response: { username: string; id: string; error?: string }) => {
           if (response.error) {
             console.error(response.error);
-            localStorage.removeItem("userId"); // Remove invalid session
+            removeLocalUserID() // Remove invalid session
           } else if (response.username && response.id && roomId) {
             context.setName(response.username);
             context.setRoomId(roomId);
@@ -72,7 +73,7 @@ export default function Room() {
         (response: { username: string; id: string; error?: string }) => {
           if (response.username && roomId) {
             // Store the user Id in session storage
-            localStorage.setItem("userId", response.id);
+            setLocalUserID(response.id);
             context.setName(response.username); // Set the username received from the backend
             context.setRoomId(roomId);
           }
@@ -99,14 +100,46 @@ export default function Room() {
       setMessages(updatedMessages);
     });
 
+    // playCardCallback
+    function createPlayCardCallback(cardIndex: number) {
+      return () => {
+        socket.emit("playCard", {userId : getLocalUserID(), cardIndex : cardIndex});
+      };
+    }
+    function createSwapCallback(cardIndex: number) {
+      return () => {
+        const currentCards = gameContext.selectedSwapCards;
+
+        // TODO change this so its a bit beter of a check
+        if (currentCards.length == 3) {
+          return;
+        }
+        const foundIndex = currentCards.indexOf(cardIndex);
+        if (foundIndex == -1) {
+          currentCards.push(cardIndex);
+        } else {
+          currentCards.splice(foundIndex, 1);
+        }
+        gameContext.setSelectedSwapCards(currentCards);
+      
+
+        if (currentCards.length == 3) {
+          socket.emit("swapCards", {userId : getLocalUserID(), cardIndexes : currentCards});
+        }
+      };
+    }
+
     // Listen for gameState changes
     socket.on("gameState", (gameState: GameState) => {
+      // ensure its hidden on all clients
+      context.setHideLobby(true);
+
       console.log(gameState);
 
       // find user data
       let userIndex = -1;
       gameState.users.forEach((u, i) => {
-        if (u.id == localStorage.getItem("userId")) {
+        if (u.id == getLocalUserID()) {
           userIndex = i;
         }
       });
@@ -123,11 +156,13 @@ export default function Room() {
       const middleCards = [0, 0, 0, 0];
       for (let i = 0; i < 4; i++) {
         const offsetIndex = (i + userIndex) % 4;
-        middleCards[offsetIndex] = gameState.users[offsetIndex].cardPlayed;
+        middleCards[i] = gameState.users[offsetIndex].cardPlayed;
       }
       gameContext.setPlayedCards(middleCards.map((x) => numberToGameCard(x)));
       gameContext.setCurrentTurn(
-        (gameState.turn + gameState.leadPlayer + userIndex) % 4
+        gameState.leadPlayer == -1
+          ? -1
+          : (gameState.turn + gameState.leadPlayer - userIndex + 4) % 4
       );
 
       const playerNames: (string | undefined)[] = [
@@ -137,11 +172,19 @@ export default function Room() {
         undefined,
       ];
 
-      gameState.users.forEach((u, i) => {
+      gameState.users.forEach((_, i) => {
         playerNames[i] = gameState.users[(i + userIndex) % 4].name;
       });
       console.log(playerNames);
       gameContext.setPlayerNames(playerNames);
+
+      // card callbacks
+      if (gameState.state == "cardSwap") {
+        gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createSwapCallback(i)));
+      } else if (gameState.state == "inGame") {
+        gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createPlayCardCallback(i)));
+      }
+
     });
 
     return () => {
@@ -160,7 +203,7 @@ export default function Room() {
   };
 
   const handleLeaveRoom = () => {
-    localStorage.removeItem("userId");
+    removeLocalUserID();
     socket.emit("leaveRoom", storedUserId);
     context.setRoomId("");
     context.setName("");

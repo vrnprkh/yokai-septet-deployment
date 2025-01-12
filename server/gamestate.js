@@ -85,6 +85,7 @@ class GameState {
     return index;
   }
 
+
   setTeam(userId, teamNumber) {
     const index = this.getUserIndex(userId);
     if (index == -1) {
@@ -163,6 +164,12 @@ class GameState {
       this.users[userIndex].hand.push(deck.pop());
       userIndex = (userIndex + 1) % 4;
     }
+    this.sortHands();
+  }
+  sortHands() {
+    this.users.forEach((u) => {
+      u.hand.sort((a, b) => a - b);
+    })
   }
 
   // swapping, automatically swap once all players have commited
@@ -193,7 +200,7 @@ class GameState {
     this.users[this.getUserIndex(userId)].hand = this.users[
       this.getUserIndex(userId)
     ].hand.filter((c) => cards.indexOf(c) == -1);
-    this.users[this.getUserIndex(userId)].toSwap = cards;
+    this.users[this.getUserIndex(userId)].toSwap = cards.toSorted((a, b) => a - b);
 
     // check for completion
     // maybe make this non automatic
@@ -203,6 +210,11 @@ class GameState {
     }
     return true;
   }
+  declareSwapIndex(userId, cardIndexes) {
+    const userIndex = this.getUserIndex(userId);
+    return this.declareSwap(userId, cardIndexes.map((x) => this.users[userIndex].hand[x]));
+  }
+
   completeSwap() {
     this.users.forEach((u, index) => {
       this.users[(index + 2) % 4].hand.push(...u.toSwap);
@@ -243,12 +255,29 @@ class GameState {
       console.log("User does not own card!");
       return false;
     }
+    // check if its valid in the trick
+    if (this.turn != 0) {
+      const leadSuit = getSuit(this.users[this.leadPlayer].cardPlayed);
+      if (getSuit(card) != leadSuit) {
+        // check each card in hand
+        for (let i = 0; i <   this.users[uIndex].hand.length; i ++) {
+          if (getSuit(this.users[uIndex].hand[i]) == leadSuit) {
+            console.log("Cannot short suit if owning lead suit!")
+            return false;
+          }
+        }
+
+      }
+    }
     // update hand and played card
-    user.hand.splice(user.hand.indexOf(card));
+    user.hand.splice(user.hand.indexOf(card), 1);
     user.cardPlayed = card;
     // update turn
     this.turn += 1;
     return true;
+  }
+  playCardIndex(userId, cardIndex) {
+    return this.playCard(userId, this.users[this.getUserIndex(userId)].hand[cardIndex])
   }
   // check if trick needs to be cleaned up
   checkTrickEnd() {
@@ -266,12 +295,16 @@ class GameState {
       // clear card
       this.users[(i + this.leadPlayer) % 4].cardPlayed = 0;
     }
-    let winningCard = evaluateTrick(cardsPlayed, this.trumpCard);
-    let winnerIndex = (cardsPlayed.indexOf(winningCard) + this.leadPlayer) % 4;
+    console.log(cardsPlayed);
+
+    let winnerIndex = evaluateTrick(cardsPlayed, this.trumpCard);
+
     // give cards to player
     this.users[winnerIndex].tricksWon.push(cardsPlayed)
     // set lead player
-    this.leadPlayer = this.winnerIndex;
+    this.leadPlayer = (winnerIndex + this.leadPlayer) % 4;
+    this.turn = 0;
+    console.log("round ended")
     return true
   }
 }

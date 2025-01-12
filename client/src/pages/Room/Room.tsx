@@ -20,6 +20,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { UseGameContext as useGameContext } from "../../providers/GameProvider";
 import { numberToGameCard } from "../../utils/cardHelper";
 import { GameCardProps } from "../Game/Card";
+import { getLocalUserID, removeLocalUserID, setLocalUserID } from "../../utils/storageHelper";
 
 export default function Room() {
   const context = useMainContext();
@@ -31,7 +32,7 @@ export default function Room() {
   const [message, setMessage] = useState<Message>({ text: "", user: "" });
   const [messages, setMessages] = useState<Message[]>([]);
   const roomId = useParams().roomId;
-  const storedUserId = sessionStorage.getItem("userId");
+  const storedUserId = getLocalUserID();
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for the last message
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function Room() {
         (response: { username: string; id: string; error?: string }) => {
           if (response.error) {
             console.error(response.error);
-            sessionStorage.removeItem("userId"); // Remove invalid session
+            removeLocalUserID() // Remove invalid session
           } else if (response.username && response.id && roomId) {
             context.setName(response.username);
             context.setRoomId(roomId);
@@ -72,7 +73,7 @@ export default function Room() {
         (response: { username: string; id: string; error?: string }) => {
           if (response.username && roomId) {
             // Store the user Id in session storage
-            sessionStorage.setItem("userId", response.id);
+            setLocalUserID(response.id);
             context.setName(response.username); // Set the username received from the backend
             context.setRoomId(roomId);
           }
@@ -102,7 +103,7 @@ export default function Room() {
     // playCardCallback
     function createPlayCardCallback(cardIndex: number) {
       return () => {
-        socket.emit("playCard", {userId : sessionStorage.getItem("userId"), cardIndex : cardIndex});
+        socket.emit("playCard", {userId : getLocalUserID(), cardIndex : cardIndex});
       };
     }
     function createSwapCallback(cardIndex: number) {
@@ -123,7 +124,7 @@ export default function Room() {
       
 
         if (currentCards.length == 3) {
-          socket.emit("swapCards", {userId : sessionStorage.getItem("userId"), cardIndexes : currentCards});
+          socket.emit("swapCards", {userId : getLocalUserID(), cardIndexes : currentCards});
         }
       };
     }
@@ -138,7 +139,7 @@ export default function Room() {
       // find user data
       let userIndex = -1;
       gameState.users.forEach((u, i) => {
-        if (u.id == sessionStorage.getItem("userId")) {
+        if (u.id == getLocalUserID()) {
           userIndex = i;
         }
       });
@@ -202,7 +203,7 @@ export default function Room() {
   };
 
   const handleLeaveRoom = () => {
-    sessionStorage.removeItem("userId");
+    removeLocalUserID();
     socket.emit("leaveRoom", storedUserId);
     context.setRoomId("");
     context.setName("");

@@ -6,6 +6,7 @@ import { useUserContext } from "../../providers/UserProvider";
 import { useSocketContext } from "../../providers/SocketProvider";
 import { useNavigate } from "react-router";
 import { User } from "../../types";
+import { setLocalUserID } from "../../utils/storageHelper";
 
 export default function Home() {
   const socket = useSocketContext();
@@ -34,7 +35,7 @@ export default function Home() {
           console.log("Joining room via code");
           setRoomId(roomId);
           // Store the user Id in session storage
-          sessionStorage.setItem("userId", response.id);
+          setLocalUserID(response.id);
           setName(response.username); // Set the username received from the backend
           navigate(`/room/${roomId}`);
         }
@@ -57,7 +58,7 @@ export default function Home() {
       }) => {
         if (roomId && username) {
           setRoomId(roomId);
-          sessionStorage.setItem("userId", id);
+          setLocalUserID(id);
           setName(username);
           navigate(`/room/${roomId}`);
         }

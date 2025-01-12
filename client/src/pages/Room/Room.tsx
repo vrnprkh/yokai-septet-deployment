@@ -111,6 +111,7 @@ export default function Room() {
     function createSwapCallback(cardIndex: number) {
       return () => {
         const currentCards = gameContext.selectedSwapCards;
+        console.log(currentCards)
 
         // TODO change this so its a bit beter of a check
         if (currentCards.length == 3) {
@@ -122,7 +123,8 @@ export default function Room() {
         } else {
           currentCards.splice(foundIndex, 1);
         }
-        gameContext.setSelectedSwapCards(currentCards);
+        gameContext.setSelectedSwapCards([...currentCards]);
+
       
 
         if (currentCards.length == 3) {

@@ -100,6 +100,8 @@ export default function Room() {
       setMessages(updatedMessages);
     });
 
+    // TODO move below to game.tsx
+
     // playCardCallback
     function createPlayCardCallback(cardIndex: number) {
       return () => {
@@ -171,13 +173,18 @@ export default function Room() {
         undefined,
         undefined,
       ];
-
+      
       gameState.users.forEach((_, i) => {
         playerNames[i] = gameState.users[(i + userIndex) % 4].name;
       });
       console.log(playerNames);
       gameContext.setPlayerNames(playerNames);
-
+      gameContext.setWonTricks([])
+      const wonTricks : number[][][] = [];
+      for (let i = 0; i < 4; i++) {
+        wonTricks.push(gameState.users[(i + userIndex) % 4].tricksWon);
+      }
+      gameContext.setWonTricks(wonTricks);
       // card callbacks
       if (gameState.state == "cardSwap") {
         gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createSwapCallback(i)));

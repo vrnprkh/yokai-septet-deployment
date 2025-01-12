@@ -1,9 +1,38 @@
 .cheatsheet {
-	position : fixed;
-	width : 20vw;
+	position: absolute;
 	background-color: aliceblue;
+	border : black 1px solid;
+	flex-direction: column;
+	display : flex;
+	gap:1px;
+}
+.cheatsheetRow {
+	display: flex;
+	flex-direction: row;
+	margin-right : 0;
+	margin-left: auto;
+	gap : 0px;
+	width : fit-content;
+	> div {
+		font-size: 1.25vw;
+	}
+	> div.cell {
+		display: flex;
+		align-items: center; /* Vertical alignment for text and dots */
+		justify-content: center; /* Horizontal alignment for text and dots */
+		aspect-ratio: 1;
 
-	min-height: 10vw;;
-
-
+		width: 1.7vw;
+		text-align: center;
+		position: relative; /* Allows positioning of the dot independently */
+	}
+}
+.dot {
+  background-color: #bbb;
+  border-radius: 50%;
+	border: 1px solid black;
+  display: block; /* Ensures proper sizing */
+  width: 75%; /* Adjust size relative to the cell */
+  height: 75%; /* Maintain circular shape */
+  position: absolute; /* Position independently within the cell */
 }

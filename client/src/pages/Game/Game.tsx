@@ -9,8 +9,7 @@ export default function Game() {
       <Cheatsheet />
       <div className="gameContainer">
         <MiddleSection />
-        <CardHolder
-        />
+        <CardHolder />
       </div>
     </>
   );

@@ -17,6 +17,8 @@ interface GameContextType {
   // selected cards during swap stage
   selectedSwapCards : number[];
 
+  wonTricks : number[][][];
+
   setCurrentCards: React.Dispatch<React.SetStateAction<GameCardProps[]>>;
   setTrumpCard: React.Dispatch<React.SetStateAction<GameCardProps | undefined>>;
   setPlayedCards: React.Dispatch<
@@ -28,6 +30,8 @@ interface GameContextType {
   setCardCallbacks : React.Dispatch<React.SetStateAction<(() => void | undefined)[]>>;
   setGamePhase: React.Dispatch<React.SetStateAction<string>>;
   setSelectedSwapCards : React.Dispatch<React.SetStateAction<number[]>>;
+  setWonTricks : React.Dispatch<React.SetStateAction<number[][][]>>;
+  
 
 }
 
@@ -47,6 +51,7 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
   const [cardCallbacks, setCardCallbacks] = useState< (() => void | undefined)[]>([])
   const [gamePhase, setGamePhase] = useState<string>("lobby");
   const [selectedSwapCards, setSelectedSwapCards] = useState<number[]>([]);
+  const [wonTricks, setWonTricks] = useState<number[][][]>([])
 
   return (
     <GameContext.Provider
@@ -59,6 +64,7 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
         cardCallbacks,
         gamePhase,
         selectedSwapCards,
+        wonTricks,
         setCurrentCards,
         setTrumpCard,
         setPlayedCards,
@@ -67,6 +73,7 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
         setCardCallbacks,
         setGamePhase,
         setSelectedSwapCards,
+        setWonTricks,
       }}
     >
       {children}

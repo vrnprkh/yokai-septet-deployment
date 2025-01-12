@@ -4,7 +4,7 @@ import { Suit } from "../types"
 
 
 
-function suitNumberToSuit(suitNumber : number) : Suit {
+export function suitNumberToSuit(suitNumber : number) : Suit {
 	switch (suitNumber) {
 		case 1:
 			return Suit.Green

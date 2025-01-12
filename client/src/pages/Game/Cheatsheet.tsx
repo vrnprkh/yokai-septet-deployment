@@ -29,6 +29,9 @@ export default function Cheatsheet() {
   }
 
   function beenPlayed(cardSuit: Suit, cardRank: number) {
+    if (cardSuit == context.trumpCard?.suit && cardRank == context.trumpCard.rank) {
+      return true;
+    }
     for (let i = 0; i < 4; i++) {
       const card = context.playedCards[i];
       if (!card) {
@@ -55,15 +58,17 @@ export default function Cheatsheet() {
           return (
             <>
               <div className="cell">
-                {rowNumber < v && v < rowNumber + 8 && (
-                  <span
-                    className="dot"
-                    style={{
-                      backgroundColor:
-                        suitToColorClass[suitNumberToSuit(rowNumber + 1)],
-                    }}
-                  ></span>
-                )}
+                {rowNumber < v &&
+                  v < rowNumber + 8 &&
+                  !beenPlayed(suitNumberToSuit(rowNumber + 1), v) && (
+                    <span
+                      className="dot"
+                      style={{
+                        backgroundColor:
+                          suitToColorClass[suitNumberToSuit(rowNumber + 1)],
+                      }}
+                    ></span>
+                  )}
               </div>
             </>
           );

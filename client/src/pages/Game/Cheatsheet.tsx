@@ -52,7 +52,36 @@ export default function Cheatsheet() {
       }
     }
   }
-  function teamRow(teamNumber: number) {}
+  function createTeamRow(teamNumber: number) {
+    const teamTricks = context.wonTricks[((teamNumber - 1) + context.userIndex) % 4].concat(
+      context.wonTricks[((teamNumber + 1) + context.userIndex) % 4]
+    );
+    const allTeamCards = teamTricks.flat();
+    // find all 7s
+    const sevenSuits: Suit[] = [];
+    allTeamCards.forEach((c) => {
+      const card = numberToGameCard(c);
+      if (card?.rank == 7 && card?.suit) {
+        sevenSuits.push(card?.suit);
+      }
+    });
+    console.log(sevenSuits);
+    return (
+      <div>
+        Team {teamNumber}: {teamTricks.length} tricks
+        {sevenSuits.map((s) => (
+          <div className="cell">
+            <span
+              className="dot"
+              style={{
+                backgroundColor: suitToColorClass[s],
+              }}
+            ></span>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   function createCheatSheetRow(rowNumber: number, labelName: string) {
     return (
@@ -74,7 +103,7 @@ export default function Cheatsheet() {
                         : "",
                     }}
                   >
-                    {v == 7 && [0,0,1,1,1,2,2,2][rowNumber]}
+                    {v == 7 && [0, 0, 1, 1, 1, 2, 2, 2][rowNumber]}
                   </span>
                 )}
               </div>
@@ -92,7 +121,10 @@ export default function Cheatsheet() {
         return createCheatSheetRow(i, c);
       })}
 
-      <div className="teamInfo"></div>
+      <div className="teamInfo">
+        {createTeamRow(1)}
+        {createTeamRow(2)}
+      </div>
     </div>
   );
 }

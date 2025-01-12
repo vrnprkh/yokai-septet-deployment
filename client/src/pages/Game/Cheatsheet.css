@@ -4,7 +4,8 @@
 	border : black 1px solid;
 	flex-direction: column;
 	display : flex;
-	gap:1px;
+	padding : 5px;
+
 }
 .cheatsheetRow {
 	display: flex;
@@ -18,8 +19,8 @@
 	}
 	> div.cell {
 		display: flex;
-		align-items: center; /* Vertical alignment for text and dots */
-		justify-content: center; /* Horizontal alignment for text and dots */
+		align-items: center; 
+		justify-content: center; 
 		aspect-ratio: 1;
 
 		width: 1.5vw;
@@ -40,5 +41,21 @@
 
 
 .teamInfo {
-	font-size: 1vw;
+	display : flex;
+	flex-direction: column;
+	> div {
+		display: flex;
+		font-size: 1vw;
+		align-items: center;
+		> .cell {
+			display: flex;
+			align-items: center; 
+			justify-content: center; 
+			aspect-ratio: 1;
+			width: 1vw;
+			height: 1vw;
+			text-align: center;
+			position: relative; 
+		}
+	}
 }

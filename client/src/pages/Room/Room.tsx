@@ -155,6 +155,7 @@ export default function Room() {
           userIndex = i;
         }
       });
+      gameContext.setUserIndex(userIndex);
       // create hand
       gameContext.setCurrentCards(
         gameState.users[userIndex].hand
@@ -195,6 +196,7 @@ export default function Room() {
         wonTricks.push(gameState.users[(i + userIndex) % 4].tricksWon);
       }
       gameContext.setWonTricks(wonTricks);
+
       // card callbacks
       gameContext.setGamePhase(gameState.state);
       if (gameState.state == "cardSwap") {
@@ -295,7 +297,7 @@ export default function Room() {
                 Team 1:{" "}
                 {gameContext.playerNames
                   .filter((u, i) => {
-                    if (!(i % 2)) {
+                    if (!((i + gameContext.userIndex) % 2)) {
                       return u;
                     }
                   })
@@ -305,7 +307,7 @@ export default function Room() {
                 Team 2:{" "}
                 {gameContext.playerNames
                   .filter((u, i) => {
-                    if (i % 2) {
+                    if ((i+gameContext.userIndex) % 2) {
                       return u;
                     }
                   })

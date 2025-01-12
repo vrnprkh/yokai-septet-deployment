@@ -53,9 +53,9 @@ export default function Cheatsheet() {
     }
   }
   function createTeamRow(teamNumber: number) {
-    const teamTricks = context.wonTricks[((teamNumber - 1) + context.userIndex) % 4].concat(
-      context.wonTricks[((teamNumber + 1) + context.userIndex) % 4]
-    );
+    const teamTricks = context.wonTricks[
+      (teamNumber - 1 + context.userIndex) % 4
+    ].concat(context.wonTricks[(teamNumber + 1 + context.userIndex) % 4]);
     const allTeamCards = teamTricks.flat();
     // find all 7s
     const sevenSuits: Suit[] = [];
@@ -103,7 +103,12 @@ export default function Cheatsheet() {
                         : "",
                     }}
                   >
-                    {v == 7 && [0, 0, 1, 1, 1, 2, 2, 2][rowNumber]}
+                    {v == 7 &&
+                    // ensure trump suit is 0
+                      (context.trumpCard?.suit !=
+                      suitNumberToSuit(rowNumber + 1)
+                        ? [0, 0, 1, 1, 1, 2, 2, 2][rowNumber]
+                        : 0)}
                   </span>
                 )}
               </div>

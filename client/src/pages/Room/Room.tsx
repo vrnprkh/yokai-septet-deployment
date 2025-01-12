@@ -20,7 +20,11 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { UseGameContext as useGameContext } from "../../providers/GameProvider";
 import { numberToGameCard } from "../../utils/cardHelper";
 import { GameCardProps } from "../Game/Card";
-import { getLocalUserID, removeLocalUserID, setLocalUserID } from "../../utils/storageHelper";
+import {
+  getLocalUserID,
+  removeLocalUserID,
+  setLocalUserID,
+} from "../../utils/storageHelper";
 
 export default function Room() {
   const context = useMainContext();
@@ -56,7 +60,7 @@ export default function Room() {
         (response: { username: string; id: string; error?: string }) => {
           if (response.error) {
             console.error(response.error);
-            removeLocalUserID() // Remove invalid session
+            removeLocalUserID(); // Remove invalid session
           } else if (response.username && response.id && roomId) {
             context.setName(response.username);
             context.setRoomId(roomId);
@@ -105,13 +109,16 @@ export default function Room() {
     // playCardCallback
     function createPlayCardCallback(cardIndex: number) {
       return () => {
-        socket.emit("playCard", {userId : getLocalUserID(), cardIndex : cardIndex});
+        socket.emit("playCard", {
+          userId: getLocalUserID(),
+          cardIndex: cardIndex,
+        });
       };
     }
     function createSwapCallback(cardIndex: number) {
       return () => {
         const currentCards = gameContext.selectedSwapCards;
-        console.log(currentCards)
+        console.log(currentCards);
 
         // TODO change this so its a bit beter of a check
         if (currentCards.length == 3) {
@@ -125,10 +132,11 @@ export default function Room() {
         }
         gameContext.setSelectedSwapCards([...currentCards]);
 
-      
-
         if (currentCards.length == 3) {
-          socket.emit("swapCards", {userId : getLocalUserID(), cardIndexes : currentCards});
+          socket.emit("swapCards", {
+            userId: getLocalUserID(),
+            cardIndexes: currentCards,
+          });
         }
       };
     }
@@ -175,27 +183,33 @@ export default function Room() {
         undefined,
         undefined,
       ];
-      
+
       gameState.users.forEach((_, i) => {
         playerNames[i] = gameState.users[(i + userIndex) % 4].name;
       });
       console.log(playerNames);
       gameContext.setPlayerNames(playerNames);
-      gameContext.setWonTricks([])
-      const wonTricks : number[][][] = [];
+      gameContext.setWonTricks([]);
+      const wonTricks: number[][][] = [];
       for (let i = 0; i < 4; i++) {
         wonTricks.push(gameState.users[(i + userIndex) % 4].tricksWon);
       }
       gameContext.setWonTricks(wonTricks);
       // card callbacks
+      gameContext.setGamePhase(gameState.state);
       if (gameState.state == "cardSwap") {
-        gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createSwapCallback(i)));
+        gameContext.setCardCallbacks(
+          gameState.users[userIndex].hand.map((_, i) => createSwapCallback(i))
+        );
       } else if (gameState.state == "inGame") {
-        gameContext.setCardCallbacks(gameState.users[userIndex].hand.map((_, i) => createPlayCardCallback(i)));
+        gameContext.setCardCallbacks(
+          gameState.users[userIndex].hand.map((_, i) =>
+            createPlayCardCallback(i)
+          )
+        );
         // clear selected cards
         gameContext.setSelectedSwapCards([]);
       }
-
     });
 
     return () => {
@@ -274,6 +288,31 @@ export default function Room() {
           <Typography variant="body1">
             Participants: {users?.map((user) => user.name).join(", ")}
           </Typography>
+          {/* Team labels */}
+          {gameContext.gamePhase != "lobby" && (
+            <>
+              <Typography variant="body1">
+                Team 1:{" "}
+                {gameContext.playerNames
+                  .filter((u, i) => {
+                    if (!(i % 2)) {
+                      return u;
+                    }
+                  })
+                  .join(", ")}
+              </Typography>
+              <Typography variant="body1">
+                Team 2:{" "}
+                {gameContext.playerNames
+                  .filter((u, i) => {
+                    if (i % 2) {
+                      return u;
+                    }
+                  })
+                  .join(", ")}
+              </Typography>
+            </>
+          )}
         </Paper>
 
         <Box

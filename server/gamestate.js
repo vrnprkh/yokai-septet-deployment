@@ -85,6 +85,7 @@ class GameState {
     return index;
   }
 
+
   setTeam(userId, teamNumber) {
     const index = this.getUserIndex(userId);
     if (index == -1) {
@@ -163,6 +164,12 @@ class GameState {
       this.users[userIndex].hand.push(deck.pop());
       userIndex = (userIndex + 1) % 4;
     }
+    this.sortHands();
+  }
+  sortHands() {
+    this.users.forEach((u) => {
+      u.hand.sort((a, b) => a - b);
+    })
   }
 
   // swapping, automatically swap once all players have commited
@@ -193,7 +200,7 @@ class GameState {
     this.users[this.getUserIndex(userId)].hand = this.users[
       this.getUserIndex(userId)
     ].hand.filter((c) => cards.indexOf(c) == -1);
-    this.users[this.getUserIndex(userId)].toSwap = cards;
+    this.users[this.getUserIndex(userId)].toSwap = cards.toSorted((a, b) => a - b);
 
     // check for completion
     // maybe make this non automatic

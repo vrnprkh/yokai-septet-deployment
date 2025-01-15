@@ -68,7 +68,8 @@ export default function Cheatsheet() {
     console.log(sevenSuits);
     return (
       <div>
-        Team {teamNumber}: {teamTricks.length} tricks
+        Team {teamNumber} ({context.scores[teamNumber - 1]}):{" "}
+        {teamTricks.length} tricks
         {sevenSuits.map((s) => (
           <div className="cell">
             <span
@@ -104,7 +105,7 @@ export default function Cheatsheet() {
                     }}
                   >
                     {v == 7 &&
-                    // ensure trump suit is 0
+                      // ensure trump suit is 0
                       (context.trumpCard?.suit !=
                       suitNumberToSuit(rowNumber + 1)
                         ? [0, 0, 1, 1, 1, 2, 2, 2][rowNumber]

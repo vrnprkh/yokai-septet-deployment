@@ -165,7 +165,7 @@ export default function Room() {
 
       // populate middle
       gameContext.setTrumpCard(numberToGameCard(gameState.trumpCard));
-
+      gameContext.setScores(gameState.scores);
       const middleCards = [0, 0, 0, 0];
       for (let i = 0; i < 4; i++) {
         const offsetIndex = (i + userIndex) % 4;

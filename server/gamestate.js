@@ -55,6 +55,7 @@ class GameState {
     this.leadPlayer = -1;
     // offset off of lead player
     this.turn = 0;
+    this.scores = [0, 0];
   }
 
   addUser(userId, username) {
@@ -151,6 +152,7 @@ class GameState {
     this.assignSeats();
     this.dealCards();
     this.state = "cardSwap";
+    this.scores = [0, 0];
     return true;
   }
 
@@ -313,12 +315,13 @@ class GameState {
     }
     console.log(cardsPlayed);
 
-    let winnerIndex = (evaluateTrick(cardsPlayed, this.trumpCard) + this.leadPlayer) % 4;
+    let winnerIndex =
+      (evaluateTrick(cardsPlayed, this.trumpCard) + this.leadPlayer) % 4;
 
     // give cards to player
     this.users[winnerIndex].tricksWon.push(cardsPlayed);
     // set lead player
-    this.leadPlayer = winnerIndex
+    this.leadPlayer = winnerIndex;
     this.turn = 0;
     console.log("trick ended");
     return true;
@@ -333,7 +336,6 @@ class GameState {
     });
     this.dealCards();
     this.state = "cardSwap";
-
   }
 
   countTricks(teamNumber) {
@@ -342,13 +344,59 @@ class GameState {
       this.users[teamNumber + 1].tricksWon.length
     );
   }
-  countSevens(teamNumber) {
-    const cardsWon = this.users[teamNumber - 1].tricksWon.flat().concat(
-      this.users[teamNumber + 1].tricksWon.flat()
-    );
-    console.log(cardsWon);
-    return cardsWon.filter((v) => getRank(v) == 7).length;
+  scoreSevens(sevens) {
+    const trumpSuit = getSuit(this.trumpCard);
+    let score = 0;
+
+    sevens.forEach((c) => {
+      score += getSuit(c) == trumpSuit ? 0 :[0, 0, 1, 1, 1, 2, 2][getSuit(c) - 1];
+    });
+    console.log("score", score)
+    return score;
   }
+
+  getSevens(teamNumber) {
+    const cardsWon = this.users[teamNumber - 1].tricksWon
+      .flat()
+      .concat(this.users[teamNumber + 1].tricksWon.flat());
+    return cardsWon.filter((v) => getRank(v) == 7);
+  }
+
+  countSevens(teamNumber) {
+    return this.getSevens(teamNumber).length;
+  }
+
+  doScoring() {
+    // pre assume that the round is over
+    const team1sevensCount = this.countSevens(1);
+    const team2sevensCount = this.countSevens(2);
+    const team1sevens = this.getSevens(1);
+    const team2sevens = this.getSevens(2)
+
+    const team1trickCount = this.countTricks(1);
+    const team2trickCount = this.countTricks(2);
+
+    if (team1sevensCount >= 4) {
+      this.scores[0] += this.scoreSevens(team1sevens);
+    } else if (team2sevensCount >= 4) {
+      this.scores[1] += this.scoreSevens(team2sevens);
+    } else if (team2trickCount >= 7) {
+      this.scores[0] += this.scoreSevens(team1sevens);
+      this.scores[0] += this.scoreSevens(this.users[1].hand.concat(this.users[3].hand).filter((v) => getRank(v) == 7));
+    } else if (team1trickCount >= 7) {
+      this.scores[1] += this.scoreSevens(team2sevens);
+      this.scores[1] += this.scoreSevens(this.users[0].hand.concat(this.users[2].hand).filter((v) => getRank(v) == 7));
+    } else {
+      // lead player team wins
+      if (this.leadPlayer % 2 == 0) {
+        this.scores[0] += this.scoreSevens(team1sevens);
+      } else {
+        this.scores[1] += this.scoreSevens(team2sevens);
+      }
+    }
+    console.log("score", this.scores);
+  }
+
   // round ending (win con)
   tryEndRound() {
     // first check 7s
@@ -368,9 +416,9 @@ class GameState {
       return false;
     }
     console.log("round over");
-    // TODO check points
+    // do scoring
+    this.doScoring();
     this.restartRound();
-
     return true;
   }
 }

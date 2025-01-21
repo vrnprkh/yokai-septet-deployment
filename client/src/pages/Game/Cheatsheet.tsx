@@ -52,7 +52,7 @@ export default function Cheatsheet() {
       }
     }
   }
-  function createTeamRow(teamNumber: number) {
+  function TeamRow(teamNumber: number) {
     const teamTricks = context.wonTricks[
       (teamNumber - 1 + context.userIndex) % 4
     ].concat(context.wonTricks[(teamNumber + 1 + context.userIndex) % 4]);
@@ -84,7 +84,7 @@ export default function Cheatsheet() {
     );
   }
 
-  function createCheatSheetRow(rowNumber: number, labelName: string) {
+  function CheatSheetRow(rowNumber: number, labelName: string) {
     return (
       <div className="cheatsheetRow">
         <div>{labelName}</div>
@@ -124,12 +124,12 @@ export default function Cheatsheet() {
     <div className="cheatsheet">
       {createLabelRow()}
       {colorNames.map((c, i) => {
-        return createCheatSheetRow(i, c);
+        return CheatSheetRow(i, c);
       })}
 
       <div className="teamInfo">
-        {createTeamRow(1)}
-        {createTeamRow(2)}
+        {TeamRow(1)}
+        {TeamRow(2)}
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ export default function Cheatsheet() {
     "Red",
     "Blue",
   ];
-  function createLabelRow() {
+  function LabelRow() {
     return (
       <div className="cheatsheetRow">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((v) => {
@@ -122,7 +122,7 @@ export default function Cheatsheet() {
 
   return (
     <div className="cheatsheet">
-      {createLabelRow()}
+      {LabelRow()}
       {colorNames.map((c, i) => {
         return CheatSheetRow(i, c);
       })}

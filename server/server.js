@@ -189,8 +189,11 @@ io.on('connection', (socket) => {
       // check gameState
       if (room.checkTrickEnd()) {
          setTimeout(() => {
-            room.resolveTrick();
+            const res = room.resolveTrick();
             sendGameState(user.roomId);
+            if (res && room.tryEndRound()) {
+               sendGameState(user.roomId);
+            }
          }, 1000)
       }
    })

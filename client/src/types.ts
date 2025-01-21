@@ -38,6 +38,7 @@ export interface GameState {
   state: string;
   leadPlayer: number;
   turn: number;
+  scores: number[];
 }
 export interface UsersEntity {
   id: string;

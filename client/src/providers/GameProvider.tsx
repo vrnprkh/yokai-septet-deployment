@@ -17,6 +17,11 @@ interface GameContextType {
   // selected cards during swap stage
   selectedSwapCards : number[];
 
+  wonTricks : number[][][];
+
+  userIndex : number;
+  scores : number[];
+
   setCurrentCards: React.Dispatch<React.SetStateAction<GameCardProps[]>>;
   setTrumpCard: React.Dispatch<React.SetStateAction<GameCardProps | undefined>>;
   setPlayedCards: React.Dispatch<
@@ -28,6 +33,9 @@ interface GameContextType {
   setCardCallbacks : React.Dispatch<React.SetStateAction<(() => void | undefined)[]>>;
   setGamePhase: React.Dispatch<React.SetStateAction<string>>;
   setSelectedSwapCards : React.Dispatch<React.SetStateAction<number[]>>;
+  setWonTricks : React.Dispatch<React.SetStateAction<number[][][]>>;
+  setUserIndex : React.Dispatch<React.SetStateAction<number>>;
+  setScores : React.Dispatch<React.SetStateAction<number[]>>;
 
 }
 
@@ -47,6 +55,10 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
   const [cardCallbacks, setCardCallbacks] = useState< (() => void | undefined)[]>([])
   const [gamePhase, setGamePhase] = useState<string>("lobby");
   const [selectedSwapCards, setSelectedSwapCards] = useState<number[]>([]);
+  const [wonTricks, setWonTricks] = useState<number[][][]>([])
+  const [userIndex, setUserIndex] = useState<number>(0);
+  const [scores, setScores] = useState<number[]>([0,0]);
+  
 
   return (
     <GameContext.Provider
@@ -59,6 +71,9 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
         cardCallbacks,
         gamePhase,
         selectedSwapCards,
+        wonTricks,
+        userIndex,
+        scores,
         setCurrentCards,
         setTrumpCard,
         setPlayedCards,
@@ -67,6 +82,9 @@ const GameProvider = ({ children }: { children: ReactNode }) => {
         setCardCallbacks,
         setGamePhase,
         setSelectedSwapCards,
+        setWonTricks,
+        setUserIndex,
+        setScores,
       }}
     >
       {children}

@@ -20,6 +20,9 @@ function shuffle(array) {
 function getSuit(card) {
   return Math.floor((card - 1) / 7) + 1;
 }
+function getRank(card) {
+  return card - 6 * (getSuit(card) - 1);
+}
 function evaluateTrick(cards, trump) {
   // returns the index of the winner of the trick
   // assume first card is lead
@@ -52,6 +55,7 @@ class GameState {
     this.leadPlayer = -1;
     // offset off of lead player
     this.turn = 0;
+    this.scores = [0, 0];
   }
 
   addUser(userId, username) {
@@ -62,7 +66,7 @@ class GameState {
       cardPlayed: 0,
       hand: [],
       team: 0,
-      tricksWon : [],
+      tricksWon: [],
     });
   }
   removeUser(userId) {
@@ -84,7 +88,6 @@ class GameState {
     });
     return index;
   }
-
 
   setTeam(userId, teamNumber) {
     const index = this.getUserIndex(userId);
@@ -149,7 +152,8 @@ class GameState {
     this.assignSeats();
     this.dealCards();
     this.state = "cardSwap";
-    return true
+    this.scores = [0, 0];
+    return true;
   }
 
   // betwen rounds and before rounds
@@ -169,7 +173,7 @@ class GameState {
   sortHands() {
     this.users.forEach((u) => {
       u.hand.sort((a, b) => a - b);
-    })
+    });
   }
 
   // swapping, automatically swap once all players have commited
@@ -200,7 +204,9 @@ class GameState {
     this.users[this.getUserIndex(userId)].hand = this.users[
       this.getUserIndex(userId)
     ].hand.filter((c) => cards.indexOf(c) == -1);
-    this.users[this.getUserIndex(userId)].toSwap = cards.toSorted((a, b) => a - b);
+    this.users[this.getUserIndex(userId)].toSwap = cards.toSorted(
+      (a, b) => a - b
+    );
 
     // check for completion
     // maybe make this non automatic
@@ -212,7 +218,10 @@ class GameState {
   }
   declareSwapIndex(userId, cardIndexes) {
     const userIndex = this.getUserIndex(userId);
-    return this.declareSwap(userId, cardIndexes.map((x) => this.users[userIndex].hand[x]));
+    return this.declareSwap(
+      userId,
+      cardIndexes.map((x) => this.users[userIndex].hand[x])
+    );
   }
 
   completeSwap() {
@@ -221,17 +230,24 @@ class GameState {
     });
     this.state = "inGame";
     // setup inGame
-    this.setupGameRound();
+    this.setupLeadPlayer();
   }
   // setup in round
-  setupGameRound() {
-    // lead player is smae from last round, unless first round, then use A
-    if (this.leadPlayer == -1) {
-      for (let i = 0; i < 4; i++) {
-        if (this.users[i].hand.indexOf(1) != -1) {
-          this.leadPlayer = i;
-          break;
-        }
+  setupLeadPlayer() {
+    // lead player is smae from last round, unless first round, then use ace/ Blue13
+    if (this.leadPlayer != -1) {
+      return;
+    }
+    for (let i = 0; i < 4; i++) {
+      if (this.users[i].hand.indexOf(1) != -1) {
+        this.leadPlayer = i;
+        return;
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      if (this.users[i].hand.indexOf(49) != -1) {
+        this.leadPlayer = i;
+        return;
       }
     }
   }
@@ -260,13 +276,12 @@ class GameState {
       const leadSuit = getSuit(this.users[this.leadPlayer].cardPlayed);
       if (getSuit(card) != leadSuit) {
         // check each card in hand
-        for (let i = 0; i <   this.users[uIndex].hand.length; i ++) {
+        for (let i = 0; i < this.users[uIndex].hand.length; i++) {
           if (getSuit(this.users[uIndex].hand[i]) == leadSuit) {
-            console.log("Cannot short suit if owning lead suit!")
+            console.log("Cannot short suit if owning lead suit!");
             return false;
           }
         }
-
       }
     }
     // update hand and played card
@@ -277,7 +292,10 @@ class GameState {
     return true;
   }
   playCardIndex(userId, cardIndex) {
-    return this.playCard(userId, this.users[this.getUserIndex(userId)].hand[cardIndex])
+    return this.playCard(
+      userId,
+      this.users[this.getUserIndex(userId)].hand[cardIndex]
+    );
   }
   // check if trick needs to be cleaned up
   checkTrickEnd() {
@@ -286,10 +304,10 @@ class GameState {
   resolveTrick() {
     if (!this.checkTrickEnd()) {
       console.log("Trick is not completed, cannot resolve trick");
-      return false
+      return false;
     }
     // evaluate trick
-    let cardsPlayed = []
+    let cardsPlayed = [];
     for (let i = 0; i < 4; i++) {
       cardsPlayed.push(this.users[(i + this.leadPlayer) % 4].cardPlayed);
       // clear card
@@ -297,15 +315,111 @@ class GameState {
     }
     console.log(cardsPlayed);
 
-    let winnerIndex = evaluateTrick(cardsPlayed, this.trumpCard);
+    let winnerIndex =
+      (evaluateTrick(cardsPlayed, this.trumpCard) + this.leadPlayer) % 4;
 
     // give cards to player
-    this.users[winnerIndex].tricksWon.push(cardsPlayed)
+    this.users[winnerIndex].tricksWon.push(cardsPlayed);
     // set lead player
-    this.leadPlayer = (winnerIndex + this.leadPlayer) % 4;
+    this.leadPlayer = winnerIndex;
     this.turn = 0;
-    console.log("round ended")
-    return true
+    console.log("trick ended");
+    return true;
+  }
+
+  // helpers
+  restartRound() {
+    this.users.forEach((u) => {
+      u.hand = [];
+      u.toSwap = [];
+      u.tricksWon = [];
+    });
+    this.dealCards();
+    this.state = "cardSwap";
+  }
+
+  countTricks(teamNumber) {
+    return (
+      this.users[teamNumber - 1].tricksWon.length +
+      this.users[teamNumber + 1].tricksWon.length
+    );
+  }
+  scoreSevens(sevens) {
+    const trumpSuit = getSuit(this.trumpCard);
+    let score = 0;
+
+    sevens.forEach((c) => {
+      score += getSuit(c) == trumpSuit ? 0 :[0, 0, 1, 1, 1, 2, 2][getSuit(c) - 1];
+    });
+    console.log("score", score)
+    return score;
+  }
+
+  getSevens(teamNumber) {
+    const cardsWon = this.users[teamNumber - 1].tricksWon
+      .flat()
+      .concat(this.users[teamNumber + 1].tricksWon.flat());
+    return cardsWon.filter((v) => getRank(v) == 7);
+  }
+
+  countSevens(teamNumber) {
+    return this.getSevens(teamNumber).length;
+  }
+
+  doScoring() {
+    // pre assume that the round is over
+    const team1sevensCount = this.countSevens(1);
+    const team2sevensCount = this.countSevens(2);
+    const team1sevens = this.getSevens(1);
+    const team2sevens = this.getSevens(2)
+
+    const team1trickCount = this.countTricks(1);
+    const team2trickCount = this.countTricks(2);
+
+    if (team1sevensCount >= 4) {
+      this.scores[0] += this.scoreSevens(team1sevens);
+    } else if (team2sevensCount >= 4) {
+      this.scores[1] += this.scoreSevens(team2sevens);
+    } else if (team2trickCount >= 7) {
+      this.scores[0] += this.scoreSevens(team1sevens);
+      this.scores[0] += this.scoreSevens(this.users[1].hand.concat(this.users[3].hand).filter((v) => getRank(v) == 7));
+    } else if (team1trickCount >= 7) {
+      this.scores[1] += this.scoreSevens(team2sevens);
+      this.scores[1] += this.scoreSevens(this.users[0].hand.concat(this.users[2].hand).filter((v) => getRank(v) == 7));
+    } else {
+      // lead player team wins
+      if (this.leadPlayer % 2 == 0) {
+        this.scores[0] += this.scoreSevens(team1sevens);
+      } else {
+        this.scores[1] += this.scoreSevens(team2sevens);
+      }
+    }
+    console.log("score", this.scores);
+  }
+
+  // round ending (win con)
+  tryEndRound() {
+    // first check 7s
+    const team1sevens = this.countSevens(1);
+    const team2sevens = this.countSevens(2);
+
+    const team1trickCount = this.countTricks(1);
+    const team2trickCount = this.countTricks(2);
+    console.log(team1sevens, team2sevens, team1trickCount, team2trickCount);
+    if (
+      team1sevens < 4 &&
+      team2sevens < 4 &&
+      team1trickCount < 7 &&
+      team2trickCount < 7 &&
+      team1trickCount + team2trickCount < 12
+    ) {
+      return false;
+    }
+    console.log("round over");
+    // do scoring
+    this.doScoring();
+    this.restartRound();
+    return true;
   }
 }
 module.exports = { GameState, evaluateTrick };

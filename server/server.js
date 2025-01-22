@@ -146,6 +146,7 @@ io.on('connection', (socket) => {
    function sendGameState(roomId) {
       const users = getUsersInRoom(roomId);
       const roomData = getRoom(roomId);
+
    
       // todo anomize data
       users.forEach(user => {
@@ -194,6 +195,9 @@ io.on('connection', (socket) => {
       }
 
       const room = getRoom(user.roomId);
+      if (!room) {
+         return;
+      }
 
       const result = room.playCardIndex(userId, cardIndex);
 
@@ -220,6 +224,9 @@ io.on('connection', (socket) => {
       }
       console.log(userId);
       const room = getRoom(user.roomId);
+      if (!room) {
+         return;
+      }
       room.declareSwapIndex(userId, cardIndexes);
 
       sendGameState(user.roomId);

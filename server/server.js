@@ -73,6 +73,9 @@ io.on('connection', (socket) => {
       console.log("socket id: ", socket.id)
 
       const user = getUser(userId);
+      if (!user) {
+         return
+      }
       console.log("Found user", user);
       const msg = { user: user.name, text: message };
       
@@ -88,6 +91,9 @@ io.on('connection', (socket) => {
    socket.on("getPreviousMessages", (userId) => {
       console.log("user id", userId);
       const user = getUser(userId);
+      if (!user) {
+         return
+      }
       console.log("user", user);
       const previousMessages = getMessages(roomId);
       io.in(user.socketId).emit("previousMessages", previousMessages);
@@ -164,12 +170,18 @@ io.on('connection', (socket) => {
 
    socket.on("changeTeam", ({userId, team}) => {
       const user = getUser(userId);
+      if (!user) {
+         return;
+      }
       user.team = team;
       io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
    })
 
    socket.on("changeName", ({userId, name}) => {
       const user = getUser(userId);
+      if (!user) {
+         return
+      }
       user.name = name;
       io.to(user.roomId).emit("users", getUsersInRoom(user.roomId));
    })
@@ -177,6 +189,9 @@ io.on('connection', (socket) => {
 
    socket.on("playCard", ({userId, cardIndex}) => {
       const user = getUser(userId);
+      if (!user) {
+         return;
+      }
 
       const room = getRoom(user.roomId);
 
@@ -200,6 +215,9 @@ io.on('connection', (socket) => {
 
    socket.on("swapCards", ({userId, cardIndexes}) => {
       const user = getUser(userId);
+      if (!user) {
+         return;
+      }
       console.log(userId);
       const room = getRoom(user.roomId);
       room.declareSwapIndex(userId, cardIndexes);
